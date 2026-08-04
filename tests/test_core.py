@@ -161,7 +161,7 @@ class LabAndReceiptTests(unittest.TestCase):
         self.assertIn("Debian/Ubuntu", report)
         self.assertIn("tested environment: Raspberry Pi 5 Model B Rev 1.0", report)
         self.assertIn("aarch64", report)
-        self.assertIn("read-only via SSH over Tor", report)
+        self.assertIn("authorized-install-and-test via SSH over Tor", report)
 
 
 if __name__ == "__main__":

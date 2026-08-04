@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-04T22:21:08Z",
-  "scope": "Real Android and Debian test-environment evidence. Partial commands and uninstalled hosts remain yellow.",
+  "generated_at": "2026-08-04T23:35:36Z",
+  "scope": "Real Android and Debian host evidence. No platform is green while behavioral suites or menu/outcome evidence remain incomplete.",
   "test_environments": [
     {
       "id": "debian_pi_5_over_tor",
@@ -11,7 +11,7 @@
       "operating_system": "Debian GNU/Linux",
       "release": "13 (trixie)",
       "access": "SSH over Tor",
-      "access_mode": "read_only"
+      "access_mode": "authorized_install_and_test"
     }
   ],
   "sources": [
@@ -28,15 +28,26 @@
       ]
     },
     {
-      "id": "android_banish_all_2026_08_04",
+      "id": "android_checkbashisms_install_2026_08_04",
+      "kind": "automated_on_platform",
+      "transport": "Wizardry firewalled-termux over authorized Wi-Fi debugging",
+      "command": "install-checkbashisms",
+      "exit_code": 0,
+      "observations": [
+        "Installed Debian's published checkbashisms script into the Termux prefix",
+        "Used the committed Termux installer fix without faking or bypassing the tool"
+      ]
+    },
+    {
+      "id": "android_banish_all_pass_2026_08_04",
       "kind": "automated_on_platform",
       "transport": "Wizardry firewalled-termux over authorized Wi-Fi debugging",
       "command": "banish all",
-      "exit_code": 1,
+      "exit_code": 0,
       "observations": [
-        "Wizardry identified the platform as linux/termux/arm64",
-        "banish passed levels 0 through 21",
-        "level 22 failed because checkbashisms was absent and its attempted package installation failed"
+        "Wizardry identified linux/termux/arm64",
+        "All levels 0 through 28 passed",
+        "Final receipt reported Banished all"
       ]
     },
     {
@@ -47,48 +58,78 @@
       "exit_code": null,
       "observations": [
         "test-magic reported pocket-dimension unavailable and proceeded without sandbox isolation",
-        "test-detect-distro.sh passed 9/9 assertions",
-        "test-detect-posix.sh passed 5/5 assertions",
-        "test-verify-posix.sh failed, making level 0 pass 2/3 scripts",
-        "test-banish.sh began and had reported two passing assertions when host-side collection was intentionally stopped",
-        "no completion receipt was produced, so this run is partial and cannot pass the outcome"
+        "level 0 passed all 3 scripts, including verify-posix 13/13 in 13 minutes 44 seconds",
+        "test-banish had reported its first 19 assertions passing",
+        "the stale slow run was intentionally stopped before deploying the committed POSIX scanner optimization",
+        "the Pixel then auto-locked, so no completion receipt exists"
       ]
     },
     {
       "id": "android_demo_magic_not_run_2026_08_04",
       "kind": "missing_evidence",
       "command": "demo-magic all",
-      "observations": ["Not run because the turn was wrapped after the incomplete full test command"]
+      "observations": ["Not run because test-magic has not completed on a stable committed revision"]
     },
     {
-      "id": "debian_pi_preflight_2026_08_04",
+      "id": "debian_pi_install_2026_08_04",
       "kind": "automated_on_platform",
-      "transport": "direct SSH over Tor using the existing trusted connection",
+      "transport": "SSH over Tor using the existing trusted connection",
+      "command": "documented Wizardry clone plus installer with assume-yes",
       "exit_code": 0,
       "observations": [
-        "Hardware is Raspberry Pi 5 Model B Rev 1.0",
-        "Architecture is aarch64",
-        "The installed OS identifies as Debian GNU/Linux 13 (trixie)",
-        "Wizardry spells directory and installer are absent, and menu is unavailable",
-        "No software was installed or changed"
+        "Wizardry installed successfully on Debian 13",
+        "The attr prerequisite was installed with the host's authorized passwordless sudo",
+        "The committed validation revision was transferred as a Git bundle and checked out without replacing user data"
       ]
+    },
+    {
+      "id": "debian_pi_banish_all_pass_2026_08_04",
+      "kind": "automated_on_platform",
+      "transport": "SSH over Tor using the existing trusted connection",
+      "command": "banish all",
+      "exit_code": 0,
+      "observations": [
+        "Wizardry identified linux/debian/arm64",
+        "Strict pocket-dimension and bwrap prerequisites were available",
+        "All levels 0 through 28 passed on committed revision 9ccf5264"
+      ]
+    },
+    {
+      "id": "debian_pi_test_magic_failed_2026_08_04",
+      "kind": "automated_on_platform",
+      "transport": "SSH over Tor using the existing trusted connection",
+      "command": "test-magic all",
+      "exit_code": 1,
+      "observations": [
+        "424 of 501 test scripts passed; 2300 of 2440 subtests passed",
+        "failed levels were 2, 6, 8, 10, 13, 15, 16, 17, 18, and 28",
+        "the failure list includes strict-isolation-sensitive paths, helper, web, and CGI tests",
+        "this is a real Debian host failure receipt and does not qualify for green"
+      ]
+    },
+    {
+      "id": "debian_pi_demo_magic_not_run_2026_08_04",
+      "kind": "missing_evidence",
+      "command": "demo-magic all",
+      "observations": ["Not run because test-magic all failed"]
     }
   ],
   "results": [
     {
       "capability_id": "terminal_system",
       "platform_id": "android_termux",
-      "recorded_at": "2026-08-04T22:21:08Z",
+      "recorded_at": "2026-08-04T23:35:36Z",
       "evidence_kind": "automated_on_platform",
       "evidence_refs": [
         "android_termux_inventory_2026_08_04",
-        "android_banish_all_2026_08_04",
+        "android_checkbashisms_install_2026_08_04",
+        "android_banish_all_pass_2026_08_04",
         "android_test_magic_partial_2026_08_04",
         "android_demo_magic_not_run_2026_08_04"
       ],
       "missing_prerequisites": [
-        "banish level 22 must pass after resolving checkbashisms packaging",
-        "test-magic all must complete and pass",
+        "Pixel must be unlocked with Termux foreground to deploy the committed scanner optimization",
+        "test-magic all must complete and pass on a stable committed revision",
         "demo-magic all must complete and pass"
       ],
       "discoverable": true,
@@ -96,13 +137,13 @@
       "executable": true,
       "outcome_passed": false,
       "derived_status": "yellow",
-      "status_reason": "prerequisite: banish level 22 must pass after resolving checkbashisms packaging, demo-magic all must complete and pass, test-magic all must complete and pass",
+      "status_reason": "prerequisite: Pixel must be unlocked with Termux foreground to deploy the committed scanner optimization, demo-magic all must complete and pass, test-magic all must complete and pass on a stable committed revision",
       "notes": "Real device evidence collected only through Wizardry's supported firewalled-termux lane."
     },
     {
       "capability_id": "mobile_debug_control",
       "platform_id": "android_termux",
-      "recorded_at": "2026-08-04T22:21:08Z",
+      "recorded_at": "2026-08-04T23:35:36Z",
       "evidence_kind": "automated_on_platform",
       "evidence_refs": ["android_termux_inventory_2026_08_04"],
       "missing_prerequisites": ["Wizardry mobile-debugging menu discovery still needs outcome evidence on the audited host"],
@@ -117,17 +158,26 @@
     {
       "capability_id": "terminal_system",
       "platform_id": "debian",
-      "recorded_at": "2026-08-04T22:21:08Z",
+      "recorded_at": "2026-08-04T23:35:36Z",
       "evidence_kind": "automated_on_platform",
-      "evidence_refs": ["debian_pi_preflight_2026_08_04"],
-      "missing_prerequisites": ["Wizardry must be installed before capability testing"],
+      "evidence_refs": [
+        "debian_pi_install_2026_08_04",
+        "debian_pi_banish_all_pass_2026_08_04",
+        "debian_pi_test_magic_failed_2026_08_04",
+        "debian_pi_demo_magic_not_run_2026_08_04"
+      ],
+      "missing_prerequisites": [
+        "repair the failing strict Debian test-magic levels and rerun to a passing receipt",
+        "demo-magic all must complete and pass",
+        "exact menu-discovery outcome evidence must pass"
+      ],
       "discoverable": false,
-      "installed": false,
-      "executable": false,
+      "installed": true,
+      "executable": true,
       "outcome_passed": false,
       "derived_status": "yellow",
-      "status_reason": "prerequisite: Wizardry must be installed before capability testing",
-      "notes": "Read-only Debian preflight on the recorded Raspberry Pi 5 test environment; installation was not explicitly authorized."
+      "status_reason": "prerequisite: demo-magic all must complete and pass, exact menu-discovery outcome evidence must pass, repair the failing strict Debian test-magic levels and rerun to a passing receipt",
+      "notes": "Real Debian 13 evidence from a Raspberry Pi 5 ARM64 test environment; banish is green but the platform outcome is not."
     }
   ]
 }

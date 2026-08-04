@@ -1,28 +1,28 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-04T22:01:55Z",
-  "scope": "Real macOS audit evidence from the local Wizardry installation. The run was intentionally stopped before completion; partial results cannot produce green status.",
+  "generated_at": "2026-08-04T23:35:36Z",
+  "scope": "Real macOS audit evidence. The full behavioral run completed without strict isolation and remains yellow because four scripts failed and sudo is not authenticated.",
   "sources": [
     {
       "id": "macos_banish_all_2026_08_04",
       "kind": "automated_on_platform",
       "platform_id": "macos",
       "command": "banish all",
-      "result": "Levels 0 through 11 passed. Level 12 failed because pocket-dimension requested sudo authentication and remained unavailable."
+      "result": "Levels 0 through 11 passed. Level 12 failed because strict pocket-dimension requires authenticated sudo and sudo -n still reports authentication required."
     },
     {
-      "id": "macos_test_magic_partial_2026_08_04",
+      "id": "macos_test_magic_complete_2026_08_04",
       "kind": "automated_on_platform",
       "platform_id": "macos",
-      "command": "test-magic all",
-      "result": "The run reached script 101 of 503 before an intentional interrupt. Levels 0, 2, and 3 passed; level 1 reported 40 of 41 test scripts passing; level 4 was in progress. The runner also warned that tests were proceeding without pocket-dimension because sudo and a TTY were unavailable."
+      "command": "WIZARDRY_TEST_TIMEOUT=300 WIZARDRY_TEST_PERFORMANCE_TIMEOUT=300 WIZARDRY_FIND_TIMEOUT=180 test-magic all",
+      "result": "497 of 501 test scripts and 2438 of 2445 subtests passed. Failed scripts: trash (4 assertions), shutdown-menu (1), create-from-template (1), and stop-site (1). The run warned that it proceeded without pocket-dimension because sudo and a TTY were unavailable."
     },
     {
       "id": "macos_demo_magic_not_run_2026_08_04",
       "kind": "missing_evidence",
       "platform_id": "macos",
       "command": "demo-magic all",
-      "result": "Not run because the readiness and behavioral-test stages had not completed."
+      "result": "Not run because banish and test-magic had not passed."
     }
   ],
   "results": [
@@ -36,15 +36,16 @@
       "evidence_kind": "automated_on_platform",
       "evidence_refs": [
         "macos_banish_all_2026_08_04",
-        "macos_test_magic_partial_2026_08_04",
+        "macos_test_magic_complete_2026_08_04",
         "macos_demo_magic_not_run_2026_08_04"
       ],
       "missing_prerequisites": [
-        "sudo authentication for pocket-dimension at banish level 12",
-        "completion of test-magic all",
-        "completion of demo-magic all"
+        "authenticated sudo for strict pocket-dimension isolation",
+        "repair and pass trash, shutdown-menu, create-from-template, and stop-site",
+        "rerun test-magic all on a stable committed revision",
+        "demo-magic all must complete and pass"
       ],
-      "notes": "Partial real-host evidence. This is yellow and must not be promoted to green."
+      "notes": "Complete non-isolated behavioral receipt; not green. Sudo authentication is the only manual user gate, but four genuine Wizardry test failures also require code repairs."
     }
   ]
 }
