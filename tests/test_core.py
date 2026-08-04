@@ -114,14 +114,11 @@ class LabAndReceiptTests(unittest.TestCase):
         self.assertEqual(plan[0]["test_role"], "control_target")
         self.assertTrue(plan[0]["manual_gates"])
 
-    def test_raspberry_pi_os_is_a_separate_debian_derived_arm_lane(self):
-        plan = make_test_plan("raspberry_pi_os")
+    def test_debian_plan_remains_generic(self):
+        plan = make_test_plan("debian")
         self.assertEqual(len(plan), 10)
-        self.assertTrue(all(item["platform_id"] == "raspberry_pi_os" for item in plan))
-        metadata = plan[0]["platform_metadata"]
-        self.assertEqual(metadata["derived_from"], "debian")
-        self.assertIn("arm64", metadata["target_architectures"])
-        self.assertEqual(metadata["hardware_family"], "raspberry_pi")
+        self.assertTrue(all(item["platform_id"] == "debian" for item in plan))
+        self.assertTrue(all("platform_metadata" not in item for item in plan))
 
     def test_bad_job_request_rejected(self):
         with self.assertRaises(ParityError):
@@ -153,13 +150,18 @@ class LabAndReceiptTests(unittest.TestCase):
         with self.assertRaises(ParityError):
             validate_receipt({"schema_version": 1})
 
-    def test_report_names_raspberry_pi_os_separately(self):
+    def test_report_attributes_pi_hardware_to_debian_test_environment(self):
         output = StringIO()
         with redirect_stdout(output):
-            command_report(SimpleNamespace(evidence=None, json=False))
+            command_report(SimpleNamespace(
+                evidence="src/parity/data/live_device_audit_2026-08-04.json",
+                json=False,
+            ))
         report = output.getvalue()
-        self.assertIn("Raspberry Pi OS", report)
-        self.assertIn("derived from debian", report)
+        self.assertIn("Debian/Ubuntu", report)
+        self.assertIn("tested environment: Raspberry Pi 5 Model B Rev 1.0", report)
+        self.assertIn("aarch64", report)
+        self.assertIn("read-only via SSH over Tor", report)
 
 
 if __name__ == "__main__":

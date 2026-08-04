@@ -20,19 +20,6 @@
       "prerequisites": []
     },
     {
-      "id": "raspberry_pi_os",
-      "label": "Raspberry Pi OS",
-      "wizardry_host": true,
-      "role": "host",
-      "official_status": "separate_lane_active_validation",
-      "platform_family": "linux",
-      "derived_from": "debian",
-      "target_architectures": ["arm64", "armhf"],
-      "hardware_family": "raspberry_pi",
-      "transports": ["local", "lan", "tor"],
-      "prerequisites": []
-    },
-    {
       "id": "nixos",
       "label": "NixOS",
       "wizardry_host": true,

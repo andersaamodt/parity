@@ -23,8 +23,9 @@ def command_report(args: argparse.Namespace) -> int:
     rows = build_matrix(evidence)
     platforms = load_data("platforms.json")["platforms"]
     capabilities = load_data("capabilities.json")["capabilities"]
+    environments = evidence.get("test_environments", [])
     if args.json:
-        _print_json({"schema_version": 1, "platforms": platforms, "rows": rows})
+        _print_json({"schema_version": 1, "platforms": platforms, "test_environments": environments, "rows": rows})
         return 0
 
     print("parity — Wizardry capability audit")
@@ -46,6 +47,16 @@ def command_report(args: argparse.Namespace) -> int:
                 f"  derived from {platform['derived_from']}; "
                 f"hardware {platform.get('hardware_family', 'unspecified')}; "
                 f"architectures {architectures or 'unspecified'}"
+            )
+        for environment in (item for item in environments if item.get("platform_id") == platform["id"]):
+            access_mode = environment.get("access_mode", "unspecified").replace("_", "-")
+            print(
+                "  tested environment: "
+                f"{environment.get('hardware', 'unknown hardware')}; "
+                f"{environment.get('operating_system', platform['label'])} "
+                f"{environment.get('release', '')}; "
+                f"{environment.get('architecture', 'unknown architecture')}; "
+                f"{access_mode} via {environment.get('access', 'unspecified access')}"
             )
     print()
     print("Outcome matrix")

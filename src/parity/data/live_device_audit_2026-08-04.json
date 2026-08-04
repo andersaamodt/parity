@@ -1,7 +1,19 @@
 {
   "schema_version": 1,
   "generated_at": "2026-08-04T22:21:08Z",
-  "scope": "Real Android and Raspberry Pi preflight evidence. Partial commands and platform mismatches remain yellow.",
+  "scope": "Real Android and Debian test-environment evidence. Partial commands and uninstalled hosts remain yellow.",
+  "test_environments": [
+    {
+      "id": "debian_pi_5_over_tor",
+      "platform_id": "debian",
+      "hardware": "Raspberry Pi 5 Model B Rev 1.0",
+      "architecture": "aarch64",
+      "operating_system": "Debian GNU/Linux",
+      "release": "13 (trixie)",
+      "access": "SSH over Tor",
+      "access_mode": "read_only"
+    }
+  ],
   "sources": [
     {
       "id": "android_termux_inventory_2026_08_04",
@@ -49,14 +61,14 @@
       "observations": ["Not run because the turn was wrapped after the incomplete full test command"]
     },
     {
-      "id": "raspberry_pi_preflight_2026_08_04",
+      "id": "debian_pi_preflight_2026_08_04",
       "kind": "automated_on_platform",
       "transport": "direct SSH over Tor using the existing trusted connection",
       "exit_code": 0,
       "observations": [
         "Hardware is Raspberry Pi 5 Model B Rev 1.0",
         "Architecture is aarch64",
-        "The installed OS identifies as Debian GNU/Linux 13 (trixie), not Raspberry Pi OS",
+        "The installed OS identifies as Debian GNU/Linux 13 (trixie)",
         "Wizardry spells directory and installer are absent, and menu is unavailable",
         "No software was installed or changed"
       ]
@@ -107,7 +119,7 @@
       "platform_id": "debian",
       "recorded_at": "2026-08-04T22:21:08Z",
       "evidence_kind": "automated_on_platform",
-      "evidence_refs": ["raspberry_pi_preflight_2026_08_04"],
+      "evidence_refs": ["debian_pi_preflight_2026_08_04"],
       "missing_prerequisites": ["Wizardry must be installed before capability testing"],
       "discoverable": false,
       "installed": false,
@@ -115,25 +127,7 @@
       "outcome_passed": false,
       "derived_status": "yellow",
       "status_reason": "prerequisite: Wizardry must be installed before capability testing",
-      "notes": "Read-only preflight; installation was not explicitly authorized."
-    },
-    {
-      "capability_id": "terminal_system",
-      "platform_id": "raspberry_pi_os",
-      "recorded_at": "2026-08-04T22:21:08Z",
-      "evidence_kind": "automated_on_platform",
-      "evidence_refs": ["raspberry_pi_preflight_2026_08_04"],
-      "missing_prerequisites": [
-        "a Raspberry Pi OS host is required for this lane",
-        "Wizardry must be installed before capability testing"
-      ],
-      "discoverable": false,
-      "installed": false,
-      "executable": false,
-      "outcome_passed": false,
-      "derived_status": "yellow",
-      "status_reason": "prerequisite: Wizardry must be installed before capability testing, a Raspberry Pi OS host is required for this lane",
-      "notes": "Hardware identity does not substitute for operating-system evidence."
+      "notes": "Read-only Debian preflight on the recorded Raspberry Pi 5 test environment; installation was not explicitly authorized."
     }
   ]
 }
