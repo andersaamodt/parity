@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-04T22:01:55Z",
+  "scope": "Real macOS audit evidence from the local Wizardry installation. The run was intentionally stopped before completion; partial results cannot produce green status.",
+  "sources": [
+    {
+      "id": "macos_banish_all_2026_08_04",
+      "kind": "automated_on_platform",
+      "platform_id": "macos",
+      "command": "banish all",
+      "result": "Levels 0 through 11 passed. Level 12 failed because pocket-dimension requested sudo authentication and remained unavailable."
+    },
+    {
+      "id": "macos_test_magic_partial_2026_08_04",
+      "kind": "automated_on_platform",
+      "platform_id": "macos",
+      "command": "test-magic all",
+      "result": "The run reached script 101 of 503 before an intentional interrupt. Levels 0, 2, and 3 passed; level 1 reported 40 of 41 test scripts passing; level 4 was in progress. The runner also warned that tests were proceeding without pocket-dimension because sudo and a TTY were unavailable."
+    },
+    {
+      "id": "macos_demo_magic_not_run_2026_08_04",
+      "kind": "missing_evidence",
+      "platform_id": "macos",
+      "command": "demo-magic all",
+      "result": "Not run because the readiness and behavioral-test stages had not completed."
+    }
+  ],
+  "results": [
+    {
+      "capability_id": "terminal_system",
+      "platform_id": "macos",
+      "discoverable": true,
+      "installed": true,
+      "executable": true,
+      "outcome_passed": false,
+      "evidence_kind": "automated_on_platform",
+      "evidence_refs": [
+        "macos_banish_all_2026_08_04",
+        "macos_test_magic_partial_2026_08_04",
+        "macos_demo_magic_not_run_2026_08_04"
+      ],
+      "missing_prerequisites": [
+        "sudo authentication for pocket-dimension at banish level 12",
+        "completion of test-magic all",
+        "completion of demo-magic all"
+      ],
+      "notes": "Partial real-host evidence. This is yellow and must not be promoted to green."
+    }
+  ]
+}
