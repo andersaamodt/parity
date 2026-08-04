@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "platforms": [
+    {
+      "id": "macos",
+      "label": "macOS",
+      "wizardry_host": true,
+      "role": "host",
+      "official_status": "working_primary",
+      "transports": ["local", "lan", "tor"],
+      "prerequisites": []
+    },
+    {
+      "id": "debian",
+      "label": "Debian/Ubuntu",
+      "wizardry_host": true,
+      "role": "host",
+      "official_status": "untested",
+      "transports": ["local", "lan", "tor"],
+      "prerequisites": []
+    },
+    {
+      "id": "nixos",
+      "label": "NixOS",
+      "wizardry_host": true,
+      "role": "host",
+      "official_status": "untested",
+      "transports": ["local", "lan", "tor"],
+      "prerequisites": []
+    },
+    {
+      "id": "arch",
+      "label": "Arch",
+      "wizardry_host": true,
+      "role": "host",
+      "official_status": "untested",
+      "transports": ["local", "lan", "tor"],
+      "prerequisites": []
+    },
+    {
+      "id": "android_termux",
+      "label": "Android via Termux",
+      "wizardry_host": true,
+      "role": "host_and_control_target",
+      "official_status": "supported_path_active_validation",
+      "transports": ["local", "lan", "tor"],
+      "prerequisites": [
+        {
+          "id": "wifi_debugging_enabled",
+          "kind": "manual_gate",
+          "applies_to": ["remote_routing"],
+          "description": "Enable Android Wi-Fi debugging for the current session before remote control."
+        }
+      ]
+    },
+    {
+      "id": "windows_wsl",
+      "label": "Windows via WSL",
+      "wizardry_host": true,
+      "role": "host_compatibility_layer",
+      "official_status": "exception_only_untested",
+      "transports": ["local", "lan"],
+      "prerequisites": [
+        {
+          "id": "wsl_installed",
+          "kind": "manual_gate",
+          "applies_to": ["host_runtime"],
+          "description": "A supported Linux distribution must be installed under WSL."
+        }
+      ]
+    },
+    {
+      "id": "windows_native",
+      "label": "Windows native",
+      "wizardry_host": false,
+      "role": "unsupported_host",
+      "official_status": "not_planned",
+      "transports": [],
+      "prerequisites": []
+    },
+    {
+      "id": "ios",
+      "label": "iPhone/iOS",
+      "wizardry_host": false,
+      "role": "constrained_test_control_client",
+      "official_status": "official_debugging_tools_only",
+      "transports": ["official_debug"],
+      "prerequisites": [
+        {
+          "id": "official_debug_session",
+          "kind": "manual_gate",
+          "applies_to": ["remote_routing", "test_lab"],
+          "description": "Connect and authorize the device through Apple's official debugging tools."
+        }
+      ]
+    }
+  ]
+}

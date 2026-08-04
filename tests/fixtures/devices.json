@@ -1,0 +1,12 @@
+{
+  "fixture": true,
+  "devices": [
+    {
+      "id": "simulated-android",
+      "platform": "android_termux",
+      "transports": ["lan", "tor"],
+      "satisfied_prerequisites": []
+    }
+  ]
+}
+

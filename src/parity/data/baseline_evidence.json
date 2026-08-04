@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-04T00:00:00Z",
+  "scope": "Source-backed baseline only; no physical-device testing was performed by Parity.",
+  "sources": [
+    {
+      "id": "wizardry_readme",
+      "kind": "source_assertion",
+      "path": "/Users/andersaamodt/.wizardry/README.md",
+      "assertion": "macOS is the working primary; Debian/Ubuntu, NixOS, and Arch are untested; Android via Termux is under active validation; Windows native is not planned except WSL."
+    },
+    {
+      "id": "wizardry_install_menu",
+      "kind": "source_assertion",
+      "path": "/Users/andersaamodt/.wizardry/spells/menu/install-menu",
+      "assertion": "The Arcana menu exposes core, web, mobile debugging, voice, AI development, creation, media, Tor, Syncthing, and SimpleX families."
+    }
+  ],
+  "results": []
+}
+

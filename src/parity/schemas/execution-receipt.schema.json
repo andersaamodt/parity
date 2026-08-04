@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wizardry.example/parity/execution-receipt.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "receipt_id", "job_id", "device_id", "executor", "transport", "status", "started_at", "finished_at", "result"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "receipt_id": {"type": "string", "minLength": 1},
+    "job_id": {"type": "string", "minLength": 1},
+    "device_id": {"type": "string", "minLength": 1},
+    "executor": {"enum": ["artificer", "dictator"]},
+    "transport": {"enum": ["local", "lan", "tor", "official_debug"]},
+    "status": {"enum": ["succeeded", "failed", "rejected", "manual_gate"]},
+    "started_at": {"type": "string", "format": "date-time"},
+    "finished_at": {"type": "string", "format": "date-time"},
+    "result": {"type": "object"},
+    "evidence": {"type": "array", "items": {"type": "object"}}
+  }
+}
+

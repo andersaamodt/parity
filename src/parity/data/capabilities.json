@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "capabilities": [
+    {
+      "id": "terminal_system",
+      "family": "core",
+      "outcome": "Discover and run Wizardry terminal and system operations from its menus.",
+      "wizardry_menu": "menu -> core wizardry / system menu",
+      "installation": "preinstalled_or_core_arcana",
+      "executor": "artificer",
+      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "authorization_scopes": ["wizardry.command.execute"]
+    },
+    {
+      "id": "files_navigation_ssh",
+      "family": "files_navigation_ssh_portals",
+      "outcome": "Navigate files and open an SSH portal to another machine.",
+      "wizardry_menu": "menu -> spellbook -> translocation",
+      "installation": "wizardry_core_plus_ssh",
+      "executor": "artificer",
+      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "authorization_scopes": ["files.read", "ssh.connect"]
+    },
+    {
+      "id": "software_installation",
+      "family": "packages_and_software",
+      "outcome": "Find and install selected software through the Arcana installer menu.",
+      "wizardry_menu": "menu -> install menu",
+      "installation": "wizardry_core",
+      "executor": "artificer",
+      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "authorization_scopes": ["software.install"]
+    },
+    {
+      "id": "private_sharing_sync",
+      "family": "private_sharing_synchronization",
+      "outcome": "Install and operate private sharing or synchronization with Syncthing, SimpleX, or Tor.",
+      "wizardry_menu": "install menu -> Syncthing / SimpleX / Tor",
+      "installation": "optional_arcana",
+      "executor": "artificer",
+      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "authorization_scopes": ["software.install", "network.private_service"]
+    },
+    {
+      "id": "media_capture_transform",
+      "family": "media",
+      "outcome": "Download, capture, or transform media with yt-dlp, FFmpeg, webcam, and audio tooling.",
+      "wizardry_menu": "install menu -> yt-dlp / webcam / voice",
+      "installation": "optional_arcana",
+      "executor": "artificer",
+      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "authorization_scopes": ["media.capture", "media.transform"]
+    },
+    {
+      "id": "voice_recognition",
+      "family": "voice_recognition",
+      "outcome": "Install voice recognition and turn speech into an intent for Dictator.",
+      "wizardry_menu": "install menu -> voice -> voice recognition",
+      "installation": "optional_arcana",
+      "executor": "dictator",
+      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "authorization_scopes": ["microphone.read"]
+    },
+    {
+      "id": "mobile_debug_control",
+      "family": "android_mobile_debugging",
+      "outcome": "Connect to and test a mobile device through authorized debugging tooling.",
+      "wizardry_menu": "install menu -> mobile debugging",
+      "installation": "optional_arcana",
+      "executor": "artificer",
+      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "control_target_platforms": ["android_termux", "ios"],
+      "authorization_scopes": ["device.debug", "device.control"]
+    },
+    {
+      "id": "web_publishing",
+      "family": "web_publishing",
+      "outcome": "Create and publish a website using Wizardry's web tooling.",
+      "wizardry_menu": "install menu -> web wizardry",
+      "installation": "optional_arcana",
+      "executor": "artificer",
+      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "authorization_scopes": ["files.write", "network.publish"]
+    },
+    {
+      "id": "local_ai_artificer",
+      "family": "local_ai_development",
+      "outcome": "Install local AI development tools and deploy or test Artificer.",
+      "wizardry_menu": "install menu -> AI dev",
+      "installation": "optional_arcana",
+      "executor": "artificer",
+      "host_platforms": ["macos", "debian", "nixos", "arch", "windows_wsl"],
+      "authorization_scopes": ["software.install", "agent.deploy"]
+    },
+    {
+      "id": "creation_development",
+      "family": "creation_development_tooling",
+      "outcome": "Create software, sites, or games using Wizardry development menus and commands.",
+      "wizardry_menu": "install menu -> wizardry projects / game development / AI dev",
+      "installation": "wizardry_core_plus_optional_arcana",
+      "executor": "artificer",
+      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "authorization_scopes": ["files.write", "process.execute"]
+    }
+  ]
+}

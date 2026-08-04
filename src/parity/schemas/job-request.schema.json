@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wizardry.example/parity/job-request.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "job_id", "capability_id", "intent", "authorization", "target"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "job_id": {"type": "string", "minLength": 1},
+    "capability_id": {"type": "string", "minLength": 1},
+    "intent": {"type": "object"},
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["granted_scopes"],
+      "properties": {
+        "granted_scopes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "approved_by": {"type": "string"},
+        "expires_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "device_id": {"type": "string"},
+        "platform": {"type": "string"},
+        "preferred_transports": {"type": "array", "items": {"enum": ["local", "lan", "tor", "official_debug"]}}
+      }
+    }
+  }
+}
+
