@@ -1,7 +1,11 @@
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
+from types import SimpleNamespace
 
 from parity.core import ParityError, audit_status, build_matrix, route_job, validate_job_request, validate_receipt
 from parity.lab import evidence_record, test_plan as make_test_plan
+from parity.cli import command_report
 
 
 class AuditSemanticsTests(unittest.TestCase):
@@ -102,6 +106,15 @@ class LabAndReceiptTests(unittest.TestCase):
         self.assertEqual(plan[0]["test_role"], "control_target")
         self.assertTrue(plan[0]["manual_gates"])
 
+    def test_raspberry_pi_os_is_a_separate_debian_derived_arm_lane(self):
+        plan = make_test_plan("raspberry_pi_os")
+        self.assertEqual(len(plan), 10)
+        self.assertTrue(all(item["platform_id"] == "raspberry_pi_os" for item in plan))
+        metadata = plan[0]["platform_metadata"]
+        self.assertEqual(metadata["derived_from"], "debian")
+        self.assertIn("arm64", metadata["target_architectures"])
+        self.assertEqual(metadata["hardware_family"], "raspberry_pi")
+
     def test_bad_job_request_rejected(self):
         with self.assertRaises(ParityError):
             validate_job_request({"schema_version": 1})
@@ -131,6 +144,14 @@ class LabAndReceiptTests(unittest.TestCase):
     def test_bad_receipt_rejected(self):
         with self.assertRaises(ParityError):
             validate_receipt({"schema_version": 1})
+
+    def test_report_names_raspberry_pi_os_separately(self):
+        output = StringIO()
+        with redirect_stdout(output):
+            command_report(SimpleNamespace(evidence=None, json=False))
+        report = output.getvalue()
+        self.assertIn("Raspberry Pi OS", report)
+        self.assertIn("derived from debian", report)
 
 
 if __name__ == "__main__":

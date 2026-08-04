@@ -9,6 +9,8 @@ eligible targets, and records receipts and evidence.
 ## What is implemented
 
 - Machine-readable capability and platform manifests, including host/client roles
+- A separately attributable Raspberry Pi OS lane, modeled as Debian-derived on
+  Raspberry Pi ARM hardware rather than folded into generic Debian evidence
 - Strict traffic-light evidence semantics
 - Authorization-friendly job and execution-receipt schemas
 - Deterministic device, prerequisite, and transport routing
@@ -26,6 +28,8 @@ on the platform.
 
 Windows native is unavailable; WSL is represented separately. iOS is not a
 Wizardry host and appears only as a constrained mobile test/control target.
+Raspberry Pi OS has its own audit lane because its ARM targets, hardware, and
+Debian-derived packaging can produce different operational results.
 
 ## Use
 
@@ -35,6 +39,7 @@ Python 3.9 or newer is sufficient; there are no runtime dependencies.
 python3 -m parity report
 python3 -m parity report --json
 python3 -m parity plan --platform android_termux
+python3 -m parity plan --platform raspberry_pi_os
 python3 -m parity record \
   --capability mobile_debug_control --platform android_termux \
   --kind manual_on_device --missing-prerequisite wifi_debugging_enabled
@@ -70,7 +75,7 @@ short-lived local work, but an external lab-artifact location is preferred.
 - `src/parity/data/capabilities.json` — user outcomes and authorization scopes
 - `src/parity/data/platforms.json` — official host/client distinctions and gates
 - `src/parity/data/baseline_evidence.json` — source assertions, not device proof
-- `src/parity/schemas/` — stable job and receipt envelopes
+- `src/parity/schemas/` — stable platform, job, evidence, and receipt envelopes
 - `src/parity/transport.py` — protocol boundary for local/LAN/Tor/debug adapters
 
 Transport adapters submit the job unchanged to an executor and return a receipt;

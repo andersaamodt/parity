@@ -24,7 +24,7 @@ def command_report(args: argparse.Namespace) -> int:
     platforms = load_data("platforms.json")["platforms"]
     capabilities = load_data("capabilities.json")["capabilities"]
     if args.json:
-        _print_json({"schema_version": 1, "rows": rows})
+        _print_json({"schema_version": 1, "platforms": platforms, "rows": rows})
         return 0
 
     print("parity — Wizardry capability audit")
@@ -40,6 +40,13 @@ def command_report(args: argparse.Namespace) -> int:
             f"{SYMBOLS['red']} {counts['red']:>2}  "
             f"({platform['official_status']})"
         )
+        if platform.get("derived_from"):
+            architectures = ", ".join(platform.get("target_architectures", []))
+            print(
+                f"  derived from {platform['derived_from']}; "
+                f"hardware {platform.get('hardware_family', 'unspecified')}; "
+                f"architectures {architectures or 'unspecified'}"
+            )
     print()
     print("Outcome matrix")
     for capability in capabilities:

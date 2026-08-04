@@ -8,7 +8,7 @@
       "wizardry_menu": "menu -> core wizardry / system menu",
       "installation": "preinstalled_or_core_arcana",
       "executor": "artificer",
-      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "host_platforms": ["macos", "debian", "raspberry_pi_os", "nixos", "arch", "android_termux", "windows_wsl"],
       "authorization_scopes": ["wizardry.command.execute"]
     },
     {
@@ -18,7 +18,7 @@
       "wizardry_menu": "menu -> spellbook -> translocation",
       "installation": "wizardry_core_plus_ssh",
       "executor": "artificer",
-      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "host_platforms": ["macos", "debian", "raspberry_pi_os", "nixos", "arch", "android_termux", "windows_wsl"],
       "authorization_scopes": ["files.read", "ssh.connect"]
     },
     {
@@ -28,7 +28,7 @@
       "wizardry_menu": "menu -> install menu",
       "installation": "wizardry_core",
       "executor": "artificer",
-      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "host_platforms": ["macos", "debian", "raspberry_pi_os", "nixos", "arch", "android_termux", "windows_wsl"],
       "authorization_scopes": ["software.install"]
     },
     {
@@ -38,7 +38,7 @@
       "wizardry_menu": "install menu -> Syncthing / SimpleX / Tor",
       "installation": "optional_arcana",
       "executor": "artificer",
-      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "host_platforms": ["macos", "debian", "raspberry_pi_os", "nixos", "arch", "android_termux", "windows_wsl"],
       "authorization_scopes": ["software.install", "network.private_service"]
     },
     {
@@ -48,7 +48,7 @@
       "wizardry_menu": "install menu -> yt-dlp / webcam / voice",
       "installation": "optional_arcana",
       "executor": "artificer",
-      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "host_platforms": ["macos", "debian", "raspberry_pi_os", "nixos", "arch", "android_termux", "windows_wsl"],
       "authorization_scopes": ["media.capture", "media.transform"]
     },
     {
@@ -58,7 +58,7 @@
       "wizardry_menu": "install menu -> voice -> voice recognition",
       "installation": "optional_arcana",
       "executor": "external",
-      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "host_platforms": ["macos", "debian", "raspberry_pi_os", "nixos", "arch", "android_termux", "windows_wsl"],
       "authorization_scopes": ["microphone.read"]
     },
     {
@@ -68,7 +68,7 @@
       "wizardry_menu": "install menu -> mobile debugging",
       "installation": "optional_arcana",
       "executor": "artificer",
-      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "host_platforms": ["macos", "debian", "raspberry_pi_os", "nixos", "arch", "android_termux", "windows_wsl"],
       "control_target_platforms": ["android_termux", "ios"],
       "authorization_scopes": ["device.debug", "device.control"]
     },
@@ -79,7 +79,7 @@
       "wizardry_menu": "install menu -> web wizardry",
       "installation": "optional_arcana",
       "executor": "artificer",
-      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "host_platforms": ["macos", "debian", "raspberry_pi_os", "nixos", "arch", "android_termux", "windows_wsl"],
       "authorization_scopes": ["files.write", "network.publish"]
     },
     {
@@ -89,7 +89,7 @@
       "wizardry_menu": "install menu -> AI dev",
       "installation": "optional_arcana",
       "executor": "artificer",
-      "host_platforms": ["macos", "debian", "nixos", "arch", "windows_wsl"],
+      "host_platforms": ["macos", "debian", "raspberry_pi_os", "nixos", "arch", "windows_wsl"],
       "authorization_scopes": ["software.install", "agent.deploy"]
     },
     {
@@ -99,7 +99,7 @@
       "wizardry_menu": "install menu -> wizardry projects / game development / AI dev",
       "installation": "wizardry_core_plus_optional_arcana",
       "executor": "artificer",
-      "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
+      "host_platforms": ["macos", "debian", "raspberry_pi_os", "nixos", "arch", "android_termux", "windows_wsl"],
       "authorization_scopes": ["files.write", "process.execute"]
     }
   ]

@@ -38,6 +38,11 @@ def test_plan(platform_id: str | None = None) -> list[dict[str, Any]]:
                     "checks": list(AUDIT_DIMENSIONS),
                     "test_role": "control_target" if as_control_target else "wizardry_host",
                     "manual_gates": gates,
+                    "platform_metadata": {
+                        key: platform[key]
+                        for key in ("derived_from", "target_architectures", "hardware_family")
+                        if key in platform
+                    },
                 }
             )
     return plan
