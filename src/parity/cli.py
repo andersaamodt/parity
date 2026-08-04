@@ -27,7 +27,7 @@ def command_report(args: argparse.Namespace) -> int:
         _print_json({"schema_version": 1, "rows": rows})
         return 0
 
-    print("Parity — Wizardry capability audit")
+    print("parity — Wizardry capability audit")
     print("Green requires menu discovery + installation + execution + passing real outcome evidence.")
     print()
     for platform in platforms:

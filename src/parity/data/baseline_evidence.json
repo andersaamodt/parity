@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-08-04T00:00:00Z",
-  "scope": "Source-backed baseline only; no physical-device testing was performed by Parity.",
+  "scope": "Source-backed baseline only; no physical-device testing was performed by parity.",
   "sources": [
     {
       "id": "wizardry_readme",
@@ -18,4 +18,3 @@
   ],
   "results": []
 }
-

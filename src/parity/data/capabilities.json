@@ -54,10 +54,10 @@
     {
       "id": "voice_recognition",
       "family": "voice_recognition",
-      "outcome": "Install voice recognition and turn speech into an intent for Dictator.",
+      "outcome": "Install voice recognition and turn speech into structured intent for an upstream consumer.",
       "wizardry_menu": "install menu -> voice -> voice recognition",
       "installation": "optional_arcana",
-      "executor": "dictator",
+      "executor": "external",
       "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
       "authorization_scopes": ["microphone.read"]
     },

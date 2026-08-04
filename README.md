@@ -1,10 +1,10 @@
-# Parity
+# parity
 
 Parity is Wizardry's evidence-first cross-platform audit, neutral remote routing
 layer, and shared test-laboratory interface. It does not recognize speech or
-perform faux-user input: Dictator produces intent, Artificer performs target OS
-and app automation, and Parity describes capabilities, chooses eligible targets,
-and records receipts and evidence.
+perform faux-user input. Upstream sources can submit structured intent, Artificer
+performs target OS and app automation, and parity describes capabilities, chooses
+eligible targets, and records receipts and evidence.
 
 ## What is implemented
 

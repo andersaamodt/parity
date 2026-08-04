@@ -1,8 +1,9 @@
 """Deterministic audit semantics and remote routing.
 
 This module deliberately has no transport implementation and performs no OS input.
-Dictator owns recognition; Artificer owns automation. Parity only decides whether
-an authorized job can be routed and what evidence is sufficient for an audit.
+Upstream sources provide structured intent, and Artificer owns automation. The
+parity layer only decides whether an authorized job can be routed and what
+evidence is sufficient for an audit.
 """
 
 from __future__ import annotations
@@ -223,7 +224,7 @@ def validate_receipt(receipt: dict[str, Any]) -> None:
         raise ParityError("unsupported receipt schema_version")
     if receipt["status"] not in {"succeeded", "failed", "rejected", "manual_gate"}:
         raise ParityError("invalid receipt status")
-    if receipt["executor"] not in {"artificer", "dictator"}:
+    if receipt["executor"] not in {"artificer", "external"}:
         raise ParityError("invalid receipt executor")
     if receipt["transport"] not in TRANSPORT_ORDER:
         raise ParityError("invalid receipt transport")
