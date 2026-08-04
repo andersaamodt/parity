@@ -75,6 +75,8 @@ short-lived local work, but an external lab-artifact location is preferred.
 - `src/parity/data/capabilities.json` — user outcomes and authorization scopes
 - `src/parity/data/platforms.json` — official host/client distinctions and gates
 - `src/parity/data/baseline_evidence.json` — source assertions, not device proof
+- `src/parity/data/live_device_audit_2026-08-04.json` — dated Android and
+  Raspberry Pi preflight evidence, including partial and failed results
 - `src/parity/schemas/` — stable platform, job, evidence, and receipt envelopes
 - `src/parity/transport.py` — protocol boundary for local/LAN/Tor/debug adapters
 

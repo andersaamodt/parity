@@ -3,7 +3,7 @@ from contextlib import redirect_stdout
 from io import StringIO
 from types import SimpleNamespace
 
-from parity.core import ParityError, audit_status, build_matrix, route_job, validate_job_request, validate_receipt
+from parity.core import ParityError, audit_status, build_matrix, load_data, route_job, validate_job_request, validate_receipt
 from parity.lab import evidence_record, test_plan as make_test_plan
 from parity.cli import command_report
 
@@ -44,6 +44,14 @@ class AuditSemanticsTests(unittest.TestCase):
     def test_baseline_never_claims_unverified_green(self):
         rows = build_matrix()
         self.assertFalse(any(row["status"] == "green" for row in rows))
+
+    def test_live_device_evidence_keeps_partial_results_yellow(self):
+        evidence = load_data("live_device_audit_2026-08-04.json")
+        for result in evidence["results"]:
+            status, reason = audit_status(result)
+            self.assertEqual(status, "yellow")
+            self.assertEqual(result["derived_status"], status)
+            self.assertEqual(result["status_reason"], reason)
 
 
 class RoutingTests(unittest.TestCase):

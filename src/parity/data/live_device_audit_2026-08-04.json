@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-04T22:21:08Z",
+  "scope": "Real Android and Raspberry Pi preflight evidence. Partial commands and platform mismatches remain yellow.",
+  "sources": [
+    {
+      "id": "android_termux_inventory_2026_08_04",
+      "kind": "automated_on_platform",
+      "transport": "Wizardry firewalled-termux over authorized Wi-Fi debugging",
+      "command": "firewalled-termux --serial <authorized-device> -- inventory payload",
+      "exit_code": 0,
+      "observations": [
+        "Pixel 8a running Android with Termux",
+        "Wizardry spells directory is present",
+        "banish, test-magic, demo-magic, and menu resolve to executable Wizardry paths"
+      ]
+    },
+    {
+      "id": "android_banish_all_2026_08_04",
+      "kind": "automated_on_platform",
+      "transport": "Wizardry firewalled-termux over authorized Wi-Fi debugging",
+      "command": "banish all",
+      "exit_code": 1,
+      "observations": [
+        "Wizardry identified the platform as linux/termux/arm64",
+        "banish passed levels 0 through 21",
+        "level 22 failed because checkbashisms was absent and its attempted package installation failed"
+      ]
+    },
+    {
+      "id": "android_test_magic_partial_2026_08_04",
+      "kind": "automated_on_platform",
+      "transport": "Wizardry firewalled-termux over authorized Wi-Fi debugging",
+      "command": "test-magic all",
+      "exit_code": null,
+      "observations": [
+        "test-magic reported pocket-dimension unavailable and proceeded without sandbox isolation",
+        "test-detect-distro.sh passed 9/9 assertions",
+        "test-detect-posix.sh passed 5/5 assertions",
+        "test-verify-posix.sh failed, making level 0 pass 2/3 scripts",
+        "test-banish.sh began and had reported two passing assertions when host-side collection was intentionally stopped",
+        "no completion receipt was produced, so this run is partial and cannot pass the outcome"
+      ]
+    },
+    {
+      "id": "android_demo_magic_not_run_2026_08_04",
+      "kind": "missing_evidence",
+      "command": "demo-magic all",
+      "observations": ["Not run because the turn was wrapped after the incomplete full test command"]
+    },
+    {
+      "id": "raspberry_pi_preflight_2026_08_04",
+      "kind": "automated_on_platform",
+      "transport": "direct SSH over Tor using the existing trusted connection",
+      "exit_code": 0,
+      "observations": [
+        "Hardware is Raspberry Pi 5 Model B Rev 1.0",
+        "Architecture is aarch64",
+        "The installed OS identifies as Debian GNU/Linux 13 (trixie), not Raspberry Pi OS",
+        "Wizardry spells directory and installer are absent, and menu is unavailable",
+        "No software was installed or changed"
+      ]
+    }
+  ],
+  "results": [
+    {
+      "capability_id": "terminal_system",
+      "platform_id": "android_termux",
+      "recorded_at": "2026-08-04T22:21:08Z",
+      "evidence_kind": "automated_on_platform",
+      "evidence_refs": [
+        "android_termux_inventory_2026_08_04",
+        "android_banish_all_2026_08_04",
+        "android_test_magic_partial_2026_08_04",
+        "android_demo_magic_not_run_2026_08_04"
+      ],
+      "missing_prerequisites": [
+        "banish level 22 must pass after resolving checkbashisms packaging",
+        "test-magic all must complete and pass",
+        "demo-magic all must complete and pass"
+      ],
+      "discoverable": true,
+      "installed": true,
+      "executable": true,
+      "outcome_passed": false,
+      "derived_status": "yellow",
+      "status_reason": "prerequisite: banish level 22 must pass after resolving checkbashisms packaging, demo-magic all must complete and pass, test-magic all must complete and pass",
+      "notes": "Real device evidence collected only through Wizardry's supported firewalled-termux lane."
+    },
+    {
+      "capability_id": "mobile_debug_control",
+      "platform_id": "android_termux",
+      "recorded_at": "2026-08-04T22:21:08Z",
+      "evidence_kind": "automated_on_platform",
+      "evidence_refs": ["android_termux_inventory_2026_08_04"],
+      "missing_prerequisites": ["Wizardry mobile-debugging menu discovery still needs outcome evidence on the audited host"],
+      "discoverable": false,
+      "installed": true,
+      "executable": true,
+      "outcome_passed": true,
+      "derived_status": "yellow",
+      "status_reason": "prerequisite: Wizardry mobile-debugging menu discovery still needs outcome evidence on the audited host",
+      "notes": "This proves the supported control lane, not every Android-host capability."
+    },
+    {
+      "capability_id": "terminal_system",
+      "platform_id": "debian",
+      "recorded_at": "2026-08-04T22:21:08Z",
+      "evidence_kind": "automated_on_platform",
+      "evidence_refs": ["raspberry_pi_preflight_2026_08_04"],
+      "missing_prerequisites": ["Wizardry must be installed before capability testing"],
+      "discoverable": false,
+      "installed": false,
+      "executable": false,
+      "outcome_passed": false,
+      "derived_status": "yellow",
+      "status_reason": "prerequisite: Wizardry must be installed before capability testing",
+      "notes": "Read-only preflight; installation was not explicitly authorized."
+    },
+    {
+      "capability_id": "terminal_system",
+      "platform_id": "raspberry_pi_os",
+      "recorded_at": "2026-08-04T22:21:08Z",
+      "evidence_kind": "automated_on_platform",
+      "evidence_refs": ["raspberry_pi_preflight_2026_08_04"],
+      "missing_prerequisites": [
+        "a Raspberry Pi OS host is required for this lane",
+        "Wizardry must be installed before capability testing"
+      ],
+      "discoverable": false,
+      "installed": false,
+      "executable": false,
+      "outcome_passed": false,
+      "derived_status": "yellow",
+      "status_reason": "prerequisite: Wizardry must be installed before capability testing, a Raspberry Pi OS host is required for this lane",
+      "notes": "Hardware identity does not substitute for operating-system evidence."
+    }
+  ]
+}
