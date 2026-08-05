@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-04T23:35:36Z",
-  "scope": "Real Android and Debian host evidence. No platform is green while behavioral suites or menu/outcome evidence remain incomplete.",
+  "generated_at": "2026-08-05T00:48:26Z",
+  "scope": "Real Android and Debian host evidence. Debian terminal/system is green on the recorded Raspberry Pi 5 environment; Android remains incomplete while its authorized Wi-Fi debugging route is unavailable.",
   "test_environments": [
     {
       "id": "debian_pi_5_over_tor",
@@ -108,10 +108,29 @@
       ]
     },
     {
-      "id": "debian_pi_demo_magic_not_run_2026_08_04",
-      "kind": "missing_evidence",
+      "id": "debian_pi_test_magic_pass_2026_08_04",
+      "kind": "automated_on_platform",
+      "transport": "SSH over Tor using the existing trusted connection",
+      "command": "WIZARDRY_TEST_TIMEOUT=300 WIZARDRY_TEST_PERFORMANCE_TIMEOUT=300 WIZARDRY_FIND_TIMEOUT=180 test-magic all",
+      "exit_code": 0,
+      "observations": [
+        "Strict pocket-dimension execution completed on committed Wizardry revision fe31dfd77",
+        "501 of 501 test scripts passed",
+        "2442 of 2442 subtests passed",
+        "Levels 0 through 28 passed, including menu-discovery and coverage gates"
+      ]
+    },
+    {
+      "id": "debian_pi_demo_magic_pass_2026_08_04",
+      "kind": "automated_on_platform",
+      "transport": "SSH over Tor using the existing trusted connection",
       "command": "demo-magic all",
-      "observations": ["Not run because test-magic all failed"]
+      "exit_code": 0,
+      "observations": [
+        "All 29 levels, 0 through 28, were traversed",
+        "Safe demonstrations ran in disposable fixtures",
+        "Unsafe or strongly interactive spells were explicitly skipped and reported by level"
+      ]
     }
   ],
   "results": [
@@ -163,21 +182,17 @@
       "evidence_refs": [
         "debian_pi_install_2026_08_04",
         "debian_pi_banish_all_pass_2026_08_04",
-        "debian_pi_test_magic_failed_2026_08_04",
-        "debian_pi_demo_magic_not_run_2026_08_04"
+        "debian_pi_test_magic_pass_2026_08_04",
+        "debian_pi_demo_magic_pass_2026_08_04"
       ],
-      "missing_prerequisites": [
-        "repair the failing strict Debian test-magic levels and rerun to a passing receipt",
-        "demo-magic all must complete and pass",
-        "exact menu-discovery outcome evidence must pass"
-      ],
-      "discoverable": false,
+      "missing_prerequisites": [],
+      "discoverable": true,
       "installed": true,
       "executable": true,
-      "outcome_passed": false,
-      "derived_status": "yellow",
-      "status_reason": "prerequisite: demo-magic all must complete and pass, exact menu-discovery outcome evidence must pass, repair the failing strict Debian test-magic levels and rerun to a passing receipt",
-      "notes": "Real Debian 13 evidence from a Raspberry Pi 5 ARM64 test environment; banish is green but the platform outcome is not."
+      "outcome_passed": true,
+      "derived_status": "green",
+      "status_reason": "discoverable, installed, executable, and outcome evidence passed",
+      "notes": "Real Debian 13 evidence from a Raspberry Pi 5 ARM64 test environment. This promotes terminal/system only; other capability families still require separately attributable installation and outcome evidence."
     }
   ]
 }

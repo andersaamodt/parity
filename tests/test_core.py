@@ -45,11 +45,17 @@ class AuditSemanticsTests(unittest.TestCase):
         rows = build_matrix()
         self.assertFalse(any(row["status"] == "green" for row in rows))
 
-    def test_live_device_evidence_keeps_partial_results_yellow(self):
+    def test_live_device_evidence_matches_recorded_platform_results(self):
         evidence = load_data("live_device_audit_2026-08-04.json")
+        expected = {
+            ("terminal_system", "android_termux"): "yellow",
+            ("mobile_debug_control", "android_termux"): "yellow",
+            ("terminal_system", "debian"): "green",
+        }
         for result in evidence["results"]:
             status, reason = audit_status(result)
-            self.assertEqual(status, "yellow")
+            key = (result["capability_id"], result["platform_id"])
+            self.assertEqual(status, expected[key])
             self.assertEqual(result["derived_status"], status)
             self.assertEqual(result["status_reason"], reason)
 
