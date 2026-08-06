@@ -6,6 +6,11 @@ perform faux-user input. Upstream sources can submit structured intent, Artifice
 performs target OS and app automation, and parity describes capabilities, chooses
 eligible targets, and records receipts and evidence.
 
+Other projects can supply a project-owned profile rather than copying Parity's
+evidence logic. Use `parity --profile /path/to/profile.json report` (or `plan`,
+`route`, and `record`). Profiles define `project`, `capabilities`, and
+`platforms`; runtime evidence remains outside either repository.
+
 ## What is implemented
 
 - Machine-readable capability and platform manifests, including host/client roles

@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any, Protocol
 
-from .core import AUDIT_DIMENSIONS, audit_status, load_data
+from .core import AUDIT_DIMENSIONS, audit_status, capability_platforms, load_data
 
 
 class TestRunner(Protocol):
@@ -14,26 +14,35 @@ class TestRunner(Protocol):
     def run(self, plan_item: dict[str, Any]) -> dict[str, Any]: ...
 
 
-def test_plan(platform_id: str | None = None) -> list[dict[str, Any]]:
-    capabilities = load_data("capabilities.json")["capabilities"]
-    platforms = load_data("platforms.json")["platforms"]
+def test_plan(
+    platform_id: str | None = None,
+    capabilities: list[dict[str, Any]] | None = None,
+    platforms: list[dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    capabilities = capabilities or load_data("capabilities.json")["capabilities"]
+    platforms = platforms or load_data("platforms.json")["platforms"]
     selected = [item for item in platforms if platform_id in (None, item["id"])]
     plan: list[dict[str, Any]] = []
     for platform in selected:
         for capability in capabilities:
-            as_host = platform["id"] in capability.get("host_platforms", [])
+            as_host = platform["id"] in capability_platforms(capability)
             as_control_target = platform["id"] in capability.get("control_target_platforms", [])
             if not (as_host or as_control_target):
                 continue
-            gates = []
-            if as_control_target:
-                gates = [item for item in platform.get("prerequisites", []) if item["kind"] == "manual_gate"]
+            gates = [
+                item for item in platform.get("prerequisites", [])
+                if item["kind"] == "manual_gate"
+                and (
+                    as_control_target
+                    or set(item.get("applies_to", [])) & {"test_lab", "host_runtime"}
+                )
+            ]
             plan.append(
                 {
                     "capability_id": capability["id"],
                     "platform_id": platform["id"],
                     "outcome": capability["outcome"],
-                    "menu_path": capability["wizardry_menu"],
+                    "discovery": capability.get("discovery", capability.get("wizardry_menu", "")),
                     "installation": capability["installation"],
                     "checks": list(AUDIT_DIMENSIONS),
                     "test_role": "control_target" if as_control_target else "wizardry_host",
@@ -51,12 +60,18 @@ def evidence_record(
     evidence_refs: list[str],
     missing_prerequisites: list[str] | None = None,
     notes: str = "",
+    capabilities: list[dict[str, Any]] | None = None,
+    platforms: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    capabilities = {item["id"] for item in load_data("capabilities.json")["capabilities"]}
-    platforms = {item["id"] for item in load_data("platforms.json")["platforms"]}
-    if capability_id not in capabilities:
+    capability_ids = {
+        item["id"] for item in (capabilities or load_data("capabilities.json")["capabilities"])
+    }
+    platform_ids = {
+        item["id"] for item in (platforms or load_data("platforms.json")["platforms"])
+    }
+    if capability_id not in capability_ids:
         raise ValueError(f"unknown capability: {capability_id}")
-    if platform_id not in platforms:
+    if platform_id not in platform_ids:
         raise ValueError(f"unknown platform: {platform_id}")
     if evidence_kind not in {"automated_on_platform", "manual_on_device", "source_assertion", "simulated"}:
         raise ValueError(f"unknown evidence kind: {evidence_kind}")

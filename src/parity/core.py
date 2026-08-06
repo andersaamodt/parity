@@ -53,6 +53,64 @@ def load_json(path: str | Path) -> Any:
         return json.load(handle)
 
 
+def load_profile(path: str | Path | None = None) -> dict[str, Any]:
+    """Load a project-neutral audit profile or the bundled Wizardry catalog."""
+    if path is None:
+        return {
+            "schema_version": 1,
+            "project": {"id": "wizardry", "label": "Wizardry"},
+            "capabilities": load_data("capabilities.json")["capabilities"],
+            "platforms": load_data("platforms.json")["platforms"],
+        }
+    profile = load_json(path)
+    validate_profile(profile)
+    return profile
+
+
+def validate_profile(profile: dict[str, Any]) -> None:
+    if profile.get("schema_version") != 1:
+        raise ParityError("unsupported project profile schema_version")
+    project = profile.get("project")
+    if not isinstance(project, dict) or not all(
+        isinstance(project.get(field), str) and project[field]
+        for field in ("id", "label")
+    ):
+        raise ParityError("project profile requires project id and label")
+    capabilities = profile.get("capabilities")
+    platforms = profile.get("platforms")
+    if not isinstance(capabilities, list) or not isinstance(platforms, list):
+        raise ParityError("project profile requires capability and platform lists")
+    capability_map = index_by_id(capabilities, "capability")
+    platform_map = index_by_id(platforms, "platform")
+    for capability in capability_map.values():
+        if not all(
+            isinstance(capability.get(field), str) and capability[field]
+            for field in ("outcome", "installation", "executor")
+        ):
+            raise ParityError(f"capability {capability['id']} is incomplete")
+        supported = capability.get("platforms", capability.get("host_platforms", []))
+        controlled = capability.get("control_target_platforms", [])
+        if not isinstance(supported, list) or not isinstance(controlled, list):
+            raise ParityError(f"capability {capability['id']} has invalid platforms")
+        unknown = sorted((set(supported) | set(controlled)) - platform_map.keys())
+        if unknown:
+            raise ParityError(
+                f"capability {capability['id']} references unknown platforms: "
+                + ", ".join(unknown)
+            )
+    for platform in platform_map.values():
+        if not isinstance(platform.get("label"), str) or not platform["label"]:
+            raise ParityError(f"platform {platform['id']} has no label")
+
+
+def capability_platforms(capability: dict[str, Any]) -> list[str]:
+    return capability.get("platforms", capability.get("host_platforms", []))
+
+
+def platform_supported(platform: dict[str, Any]) -> bool:
+    return bool(platform.get("supported", platform.get("wizardry_host", False)))
+
+
 def index_by_id(items: Iterable[dict[str, Any]], label: str) -> dict[str, dict[str, Any]]:
     indexed: dict[str, dict[str, Any]] = {}
     for item in items:
@@ -146,7 +204,7 @@ def route_job(
             continue
         platform = platform_map[platform_id]
         as_control_target = platform_id in capability.get("control_target_platforms", [])
-        as_host = platform_id in capability.get("host_platforms", []) and platform.get("wizardry_host")
+        as_host = platform_id in capability_platforms(capability) and platform_supported(platform)
         if not (as_host or as_control_target):
             continue
         transport = _candidate_transport(device, preferred)
@@ -198,7 +256,12 @@ def build_matrix(
     for capability in capabilities:
         for platform in platforms:
             platform_id = platform["id"]
-            supported = platform_id in capability.get("host_platforms", []) and platform.get("wizardry_host", False)
+            if "platforms" in capability and platform_id not in (
+                set(capability_platforms(capability))
+                | set(capability.get("control_target_platforms", []))
+            ):
+                continue
+            supported = platform_id in capability_platforms(capability) and platform_supported(platform)
             result = evidence_map.get((capability["id"], platform_id))
             status, reason = audit_status(result, supported)
             rows.append(

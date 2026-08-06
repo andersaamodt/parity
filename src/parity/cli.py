@@ -7,7 +7,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from .core import build_matrix, load_data, load_json, route_job, validate_receipt
+from .core import build_matrix, load_json, load_profile, route_job, validate_receipt
 from .lab import evidence_record, test_plan
 
 
@@ -19,16 +19,21 @@ def _print_json(value: Any) -> None:
 
 
 def command_report(args: argparse.Namespace) -> int:
-    evidence = load_json(args.evidence) if args.evidence else load_data("baseline_evidence.json")
-    rows = build_matrix(evidence)
-    platforms = load_data("platforms.json")["platforms"]
-    capabilities = load_data("capabilities.json")["capabilities"]
+    profile_path = getattr(args, "profile", None)
+    profile = load_profile(profile_path)
+    evidence = load_json(args.evidence) if args.evidence else (
+        load_json(Path(__file__).parent / "data" / "baseline_evidence.json")
+        if profile_path is None else {"results": []}
+    )
+    platforms = profile["platforms"]
+    capabilities = profile["capabilities"]
+    rows = build_matrix(evidence, capabilities, platforms)
     environments = evidence.get("test_environments", [])
     if args.json:
         _print_json({"schema_version": 1, "platforms": platforms, "test_environments": environments, "rows": rows})
         return 0
 
-    print("parity — Wizardry capability audit")
+    print(f"parity — {profile['project']['label']} capability audit")
     print("Green requires menu discovery + installation + execution + passing real outcome evidence.")
     print()
     for platform in platforms:
@@ -39,7 +44,7 @@ def command_report(args: argparse.Namespace) -> int:
             f"{SYMBOLS['green']} {counts['green']:>2}  "
             f"{SYMBOLS['yellow']} {counts['yellow']:>2}  "
             f"{SYMBOLS['red']} {counts['red']:>2}  "
-            f"({platform['official_status']})"
+            f"({platform.get('status', platform.get('official_status', 'unspecified'))})"
         )
         if platform.get("derived_from"):
             architectures = ", ".join(platform.get("target_architectures", []))
@@ -68,23 +73,25 @@ def command_report(args: argparse.Namespace) -> int:
 
 
 def command_route(args: argparse.Namespace) -> int:
+    profile = load_profile(getattr(args, "profile", None))
     request = load_json(args.request)
     devices_doc = load_json(args.devices)
     devices = devices_doc.get("devices", devices_doc) if isinstance(devices_doc, dict) else devices_doc
-    decision = route_job(request, devices)
+    decision = route_job(request, devices, profile["capabilities"], profile["platforms"])
     _print_json(decision.as_dict())
     return 0 if decision.status in {"eligible", "manual_gate"} else 2
 
 
 def command_plan(args: argparse.Namespace) -> int:
-    plan = test_plan(args.platform)
+    profile = load_profile(getattr(args, "profile", None))
+    plan = test_plan(args.platform, profile["capabilities"], profile["platforms"])
     if args.json:
         _print_json({"schema_version": 1, "tests": plan})
         return 0
     for item in plan:
         print(f"{item['platform_id']} / {item['capability_id']}")
         print(f"  outcome: {item['outcome']}")
-        print(f"  discover: {item['menu_path']}")
+        print(f"  discover: {item['discovery']}")
         for gate in item["manual_gates"]:
             print(f"  manual gate: {gate['description']}")
     return 0
@@ -97,6 +104,7 @@ def command_validate_receipt(args: argparse.Namespace) -> int:
 
 
 def command_record(args: argparse.Namespace) -> int:
+    profile = load_profile(getattr(args, "profile", None))
     checks = {name: name in args.check for name in ("discoverable", "installed", "executable", "outcome_passed")}
     record = evidence_record(
         args.capability,
@@ -106,6 +114,8 @@ def command_record(args: argparse.Namespace) -> int:
         args.evidence_ref,
         args.missing_prerequisite,
         args.notes,
+        profile["capabilities"],
+        profile["platforms"],
     )
     _print_json(record)
     return 0
@@ -113,6 +123,7 @@ def command_record(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="parity", description="Wizardry parity audit and neutral remote routing")
+    parser.add_argument("--profile", type=Path, help="project-owned capability and platform profile")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     report = subparsers.add_parser("report", help="show the evidence-backed outcome matrix")

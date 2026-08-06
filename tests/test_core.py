@@ -3,7 +3,10 @@ from contextlib import redirect_stdout
 from io import StringIO
 from types import SimpleNamespace
 
-from parity.core import ParityError, audit_status, build_matrix, load_data, route_job, validate_job_request, validate_receipt
+from parity.core import (
+    ParityError, audit_status, build_matrix, load_data, route_job,
+    validate_job_request, validate_profile, validate_receipt,
+)
 from parity.lab import evidence_record, test_plan as make_test_plan
 from parity.cli import command_report
 
@@ -168,6 +171,69 @@ class LabAndReceiptTests(unittest.TestCase):
         self.assertIn("tested environment: Raspberry Pi 5 Model B Rev 1.0", report)
         self.assertIn("aarch64", report)
         self.assertIn("authorized-install-and-test via SSH over Tor", report)
+
+    def test_external_profile_drives_plan_matrix_and_routing(self):
+        profile = {
+            "schema_version": 1,
+            "project": {"id": "example", "label": "Example"},
+            "capabilities": [{
+                "id": "message",
+                "outcome": "Send a message",
+                "discovery": "Conversation",
+                "installation": "application",
+                "executor": "external",
+                "platforms": ["phone"],
+                "authorization_scopes": ["app.test"],
+            }],
+            "platforms": [{
+                "id": "phone",
+                "label": "Phone",
+                "supported": True,
+                "status": "required",
+                "transports": ["official_debug"],
+                "prerequisites": [],
+            }],
+        }
+        validate_profile(profile)
+        plan = make_test_plan("phone", profile["capabilities"], profile["platforms"])
+        self.assertEqual(plan[0]["discovery"], "Conversation")
+        self.assertEqual(
+            build_matrix(None, profile["capabilities"], profile["platforms"])[0]["status"],
+            "yellow",
+        )
+        profile["platforms"].append({
+            "id": "desktop", "label": "Desktop", "supported": True,
+            "transports": ["local"], "prerequisites": [],
+        })
+        self.assertEqual(len(build_matrix(None, profile["capabilities"], profile["platforms"])), 1)
+        request = {
+            "schema_version": 1,
+            "job_id": "one",
+            "capability_id": "message",
+            "intent": {},
+            "authorization": {"granted_scopes": ["app.test"]},
+            "target": {"platform": "phone", "preferred_transports": ["official_debug"]},
+        }
+        device = {"id": "phone-1", "platform": "phone", "transports": ["official_debug"]}
+        self.assertEqual(
+            route_job(request, [device], profile["capabilities"], profile["platforms"]).status,
+            "eligible",
+        )
+
+    def test_external_profile_rejects_unknown_platform(self):
+        with self.assertRaises(ParityError):
+            validate_profile({
+                "schema_version": 1,
+                "project": {"id": "bad", "label": "Bad"},
+                "capabilities": [{
+                    "id": "x",
+                    "outcome": "x",
+                    "installation": "x",
+                    "executor": "external",
+                    "platforms": ["missing"],
+                }],
+                "platforms": [],
+            })
 
 
 if __name__ == "__main__":
