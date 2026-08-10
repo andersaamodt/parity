@@ -80,6 +80,18 @@ def validate_profile(profile: dict[str, Any]) -> None:
     platforms = profile.get("platforms")
     if not isinstance(capabilities, list) or not isinstance(platforms, list):
         raise ParityError("project profile requires capability and platform lists")
+    arche = profile.get("arche")
+    if arche is not None:
+        if not isinstance(arche, dict) or not all(
+            isinstance(arche.get(field), str) and arche[field]
+            for field in ("id", "digest")
+        ):
+            raise ParityError("project profile arche requires id and digest")
+        algorithm, separator, value = arche["digest"].partition(":")
+        if algorithm != "sha256" or separator != ":" or len(value) != 64 or any(
+            character not in "0123456789abcdef" for character in value
+        ):
+            raise ParityError("project profile arche digest must be sha256:<64 lowercase hex characters>")
     capability_map = index_by_id(capabilities, "capability")
     platform_map = index_by_id(platforms, "platform")
     for capability in capability_map.values():
@@ -123,7 +135,11 @@ def index_by_id(items: Iterable[dict[str, Any]], label: str) -> dict[str, dict[s
     return indexed
 
 
-def audit_status(result: dict[str, Any] | None, platform_supported: bool = True) -> tuple[str, str]:
+def audit_status(
+    result: dict[str, Any] | None,
+    platform_supported: bool = True,
+    expected_arche_digest: str | None = None,
+) -> tuple[str, str]:
     """Return traffic-light status and a precise explanation.
 
     A green result requires real, passing evidence for all four user-outcome
@@ -140,6 +156,12 @@ def audit_status(result: dict[str, Any] | None, platform_supported: bool = True)
     prerequisites = result.get("missing_prerequisites", [])
     if prerequisites:
         return "yellow", "prerequisite: " + ", ".join(sorted(prerequisites))
+    if expected_arche_digest:
+        observed_digest = result.get("arche_digest")
+        if not observed_digest:
+            return "yellow", "evidence is not bound to the current arche"
+        if observed_digest != expected_arche_digest:
+            return "yellow", "evidence was collected for a different arche revision"
     evidence_kind = result.get("evidence_kind")
     missing = [dimension for dimension in AUDIT_DIMENSIONS if result.get(dimension) is not True]
     if missing:
@@ -247,6 +269,7 @@ def build_matrix(
     evidence: dict[str, Any] | None = None,
     capabilities: list[dict[str, Any]] | None = None,
     platforms: list[dict[str, Any]] | None = None,
+    expected_arche_digest: str | None = None,
 ) -> list[dict[str, str]]:
     capabilities = capabilities or load_data("capabilities.json")["capabilities"]
     platforms = platforms or load_data("platforms.json")["platforms"]
@@ -263,7 +286,7 @@ def build_matrix(
                 continue
             supported = platform_id in capability_platforms(capability) and platform_supported(platform)
             result = evidence_map.get((capability["id"], platform_id))
-            status, reason = audit_status(result, supported)
+            status, reason = audit_status(result, supported, expected_arche_digest)
             rows.append(
                 {
                     "capability_id": capability["id"],

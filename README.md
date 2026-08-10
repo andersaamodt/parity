@@ -11,6 +11,13 @@ evidence logic. Use `parity --profile /path/to/profile.json report` (or `plan`,
 `route`, and `record`). Profiles define `project`, `capabilities`, and
 `platforms`; runtime evidence remains outside either repository.
 
+Profiles are audit projections, not product authorities. A project with an
+existing product arche should generate its Parity profile from that arche. The
+optional `arche` field binds a profile to `sha256:<digest>`; `record` copies that
+digest into evidence, and `report` keeps missing or mismatched evidence yellow.
+Changing the governing arche therefore invalidates earlier green evidence
+without making Parity reinterpret the product contract.
+
 ## What is implemented
 
 - Machine-readable capability and platform manifests, including host/client roles
@@ -65,6 +72,9 @@ An audit result is:
 - **yellow** when a prerequisite remains or evidence is missing, partial, or
   simulated;
 - **red** when the outcome is unavailable on the platform.
+
+For an arche-bound profile, otherwise passing evidence is still **yellow** when
+it has no arche digest or was collected against a different digest.
 
 Runtime device inventories, receipts, and evidence should live outside this
 repository. The ignored `evidence/` and `receipts/` names are available for

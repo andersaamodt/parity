@@ -18,6 +18,7 @@ def test_plan(
     platform_id: str | None = None,
     capabilities: list[dict[str, Any]] | None = None,
     platforms: list[dict[str, Any]] | None = None,
+    arche: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     capabilities = capabilities or load_data("capabilities.json")["capabilities"]
     platforms = platforms or load_data("platforms.json")["platforms"]
@@ -37,18 +38,19 @@ def test_plan(
                     or set(item.get("applies_to", [])) & {"test_lab", "host_runtime"}
                 )
             ]
-            plan.append(
-                {
-                    "capability_id": capability["id"],
-                    "platform_id": platform["id"],
-                    "outcome": capability["outcome"],
-                    "discovery": capability.get("discovery", capability.get("wizardry_menu", "")),
-                    "installation": capability["installation"],
-                    "checks": list(AUDIT_DIMENSIONS),
-                    "test_role": "control_target" if as_control_target else "wizardry_host",
-                    "manual_gates": gates,
-                }
-            )
+            item = {
+                "capability_id": capability["id"],
+                "platform_id": platform["id"],
+                "outcome": capability["outcome"],
+                "discovery": capability.get("discovery", capability.get("wizardry_menu", "")),
+                "installation": capability["installation"],
+                "checks": list(AUDIT_DIMENSIONS),
+                "test_role": "control_target" if as_control_target else "wizardry_host",
+                "manual_gates": gates,
+            }
+            if arche:
+                item["arche"] = arche
+            plan.append(item)
     return plan
 
 
@@ -62,6 +64,7 @@ def evidence_record(
     notes: str = "",
     capabilities: list[dict[str, Any]] | None = None,
     platforms: list[dict[str, Any]] | None = None,
+    arche_digest: str | None = None,
 ) -> dict[str, Any]:
     capability_ids = {
         item["id"] for item in (capabilities or load_data("capabilities.json")["capabilities"])
@@ -85,5 +88,9 @@ def evidence_record(
         "notes": notes,
     }
     record.update({dimension: checks.get(dimension, False) for dimension in AUDIT_DIMENSIONS})
-    record["derived_status"], record["status_reason"] = audit_status(record)
+    if arche_digest:
+        record["arche_digest"] = arche_digest
+    record["derived_status"], record["status_reason"] = audit_status(
+        record, expected_arche_digest=arche_digest
+    )
     return record

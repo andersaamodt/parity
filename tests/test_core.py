@@ -10,6 +10,9 @@ from parity.core import (
 from parity.lab import evidence_record, test_plan as make_test_plan
 from parity.cli import command_report
 
+CURRENT_ARCH = "sha256:" + "a" * 64
+OLD_ARCH = "sha256:" + "b" * 64
+
 
 class AuditSemanticsTests(unittest.TestCase):
     def test_green_requires_all_dimensions_and_real_evidence(self):
@@ -22,6 +25,36 @@ class AuditSemanticsTests(unittest.TestCase):
             "evidence_refs": ["artifact://run/1"],
         }
         self.assertEqual(audit_status(result)[0], "green")
+
+    def test_green_evidence_must_match_current_arche(self):
+        result = {
+            "discoverable": True,
+            "installed": True,
+            "executable": True,
+            "outcome_passed": True,
+            "evidence_kind": "manual_on_device",
+            "evidence_refs": ["artifact://run/1"],
+            "arche_digest": CURRENT_ARCH,
+        }
+        self.assertEqual(
+            audit_status(result, expected_arche_digest=CURRENT_ARCH)[0], "green"
+        )
+        status, reason = audit_status(result, expected_arche_digest=OLD_ARCH)
+        self.assertEqual(status, "yellow")
+        self.assertIn("different arche revision", reason)
+
+    def test_unbound_evidence_is_yellow_for_arche_bound_profile(self):
+        result = {
+            "discoverable": True,
+            "installed": True,
+            "executable": True,
+            "outcome_passed": True,
+            "evidence_kind": "automated_on_platform",
+            "evidence_refs": ["artifact://run/2"],
+        }
+        status, reason = audit_status(result, expected_arche_digest=CURRENT_ARCH)
+        self.assertEqual(status, "yellow")
+        self.assertIn("not bound", reason)
 
     def test_simulation_never_turns_green(self):
         result = {
@@ -141,6 +174,15 @@ class LabAndReceiptTests(unittest.TestCase):
         )
         self.assertEqual(record["derived_status"], "yellow")
 
+    def test_record_carries_arche_digest(self):
+        record = evidence_record(
+            "terminal_system", "debian",
+            {"discoverable": True, "installed": True, "executable": True, "outcome_passed": True},
+            "manual_on_device", ["artifact://debian/1"], arche_digest=CURRENT_ARCH,
+        )
+        self.assertEqual(record["arche_digest"], CURRENT_ARCH)
+        self.assertEqual(record["derived_status"], "green")
+
     def test_receipt_validation(self):
         validate_receipt({
             "schema_version": 1,
@@ -176,6 +218,7 @@ class LabAndReceiptTests(unittest.TestCase):
         profile = {
             "schema_version": 1,
             "project": {"id": "example", "label": "Example"},
+            "arche": {"id": "product.ir.json", "digest": CURRENT_ARCH},
             "capabilities": [{
                 "id": "message",
                 "outcome": "Send a message",
@@ -195,8 +238,11 @@ class LabAndReceiptTests(unittest.TestCase):
             }],
         }
         validate_profile(profile)
-        plan = make_test_plan("phone", profile["capabilities"], profile["platforms"])
+        plan = make_test_plan(
+            "phone", profile["capabilities"], profile["platforms"], profile["arche"]
+        )
         self.assertEqual(plan[0]["discovery"], "Conversation")
+        self.assertEqual(plan[0]["arche"], profile["arche"])
         self.assertEqual(
             build_matrix(None, profile["capabilities"], profile["platforms"])[0]["status"],
             "yellow",
@@ -219,6 +265,16 @@ class LabAndReceiptTests(unittest.TestCase):
             route_job(request, [device], profile["capabilities"], profile["platforms"]).status,
             "eligible",
         )
+
+    def test_external_profile_rejects_invalid_arche_digest(self):
+        with self.assertRaises(ParityError):
+            validate_profile({
+                "schema_version": 1,
+                "project": {"id": "bad", "label": "Bad"},
+                "arche": {"id": "product", "digest": "latest"},
+                "capabilities": [],
+                "platforms": [],
+            })
 
     def test_external_profile_rejects_unknown_platform(self):
         with self.assertRaises(ParityError):

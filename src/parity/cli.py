@@ -27,14 +27,23 @@ def command_report(args: argparse.Namespace) -> int:
     )
     platforms = profile["platforms"]
     capabilities = profile["capabilities"]
-    rows = build_matrix(evidence, capabilities, platforms)
+    arche_digest = profile.get("arche", {}).get("digest")
+    rows = build_matrix(evidence, capabilities, platforms, arche_digest)
     environments = evidence.get("test_environments", [])
     if args.json:
-        _print_json({"schema_version": 1, "platforms": platforms, "test_environments": environments, "rows": rows})
+        _print_json({
+            "schema_version": 1,
+            "arche": profile.get("arche"),
+            "platforms": platforms,
+            "test_environments": environments,
+            "rows": rows,
+        })
         return 0
 
     print(f"parity — {profile['project']['label']} capability audit")
     print("Green requires menu discovery + installation + execution + passing real outcome evidence.")
+    if profile.get("arche"):
+        print(f"Arche: {profile['arche']['id']} ({profile['arche']['digest']})")
     print()
     for platform in platforms:
         platform_rows = [row for row in rows if row["platform_id"] == platform["id"]]
@@ -84,7 +93,9 @@ def command_route(args: argparse.Namespace) -> int:
 
 def command_plan(args: argparse.Namespace) -> int:
     profile = load_profile(getattr(args, "profile", None))
-    plan = test_plan(args.platform, profile["capabilities"], profile["platforms"])
+    plan = test_plan(
+        args.platform, profile["capabilities"], profile["platforms"], profile.get("arche")
+    )
     if args.json:
         _print_json({"schema_version": 1, "tests": plan})
         return 0
@@ -116,6 +127,7 @@ def command_record(args: argparse.Namespace) -> int:
         args.notes,
         profile["capabilities"],
         profile["platforms"],
+        profile.get("arche", {}).get("digest"),
     )
     _print_json(record)
     return 0

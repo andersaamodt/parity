@@ -12,6 +12,7 @@
     "capability_id": {"type": "string", "minLength": 1},
     "platform_id": {"type": "string", "minLength": 1},
     "recorded_at": {"type": "string", "format": "date-time"},
+    "arche_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
     "evidence_kind": {"enum": ["automated_on_platform", "manual_on_device", "source_assertion", "simulated"]},
     "evidence_refs": {"type": "array", "items": {"type": "string"}},
     "missing_prerequisites": {"type": "array", "items": {"type": "string"}},

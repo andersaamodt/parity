@@ -15,6 +15,15 @@
         "label": {"type": "string", "minLength": 1}
       }
     },
+    "arche": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "digest"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+      }
+    },
     "capabilities": {
       "type": "array",
       "items": {
