@@ -2,13 +2,15 @@
 
 Parity is Wizardry's evidence-first cross-platform audit, neutral remote routing
 layer, and shared test-laboratory interface. It does not recognize speech or
-perform faux-user input. Upstream sources can submit structured intent, Artificer
-performs target OS and app automation, and parity describes capabilities, chooses
-eligible targets, and records receipts and evidence.
+perform faux-user input. Upstream sources submit structured intent, capability
+profiles name an executor, and parity describes capabilities, chooses eligible
+targets, and records receipts and evidence. Raw interface operations normally
+route to the standalone lowercase `actuator` project; Parity never absorbs its
+device-control implementation.
 
 Other projects can supply a project-owned profile rather than copying Parity's
-evidence logic. Use `parity --profile /path/to/profile.json report` (or `plan`,
-`route`, and `record`). Profiles define `project`, `capabilities`, and
+evidence logic. Use `python3 -m parity --profile /path/to/profile.json report`
+(or `plan`, `route`, and `record`). Profiles define `project`, `capabilities`, and
 `platforms`; runtime evidence remains outside either repository.
 
 Profiles are audit projections, not product authorities. A project with an
@@ -53,6 +55,10 @@ python3 -m parity record \
 python3 -m parity route \
   --request tests/fixtures/android_request.json \
   --devices tests/fixtures/devices.json
+python3 -m parity execute \
+  --request /path/to/actuator-request.json \
+  --devices /path/to/devices.json \
+  --actuator-command actuator
 python3 -m unittest discover -s tests -v
 ```
 
@@ -90,7 +96,15 @@ short-lived local work, but an external lab-artifact location is preferred.
 - `src/parity/schemas/` — stable platform, test-environment, job, evidence, and receipt envelopes
 - `src/parity/transport.py` — protocol boundary for local/LAN/Tor/debug adapters
 
-Transport adapters submit the job unchanged to an executor and return a receipt;
-they do not reinterpret intent. Routing is deterministic: authorization is
-checked first, candidates are sorted by device id, and transport preference is
-honored in request order.
+Transport adapters preserve the job's named intent when translating it to the
+executor contract and return a receipt; they do not infer new intent. Executor ids are
+validated opaque names rather than a hard-coded product list. Routing is
+deterministic: authorization is checked first, candidates are sorted by device
+id, and transport preference is honored in request order.
+
+The local actuator transport accepts only an already eligible route whose
+profile executor is `actuator`. Its job intent must be an actuator `action` and
+`arguments` object. It invokes one executable without a shell, returns a Parity
+receipt, preserves uncertain mutation outcomes, and leaves semantic authorization
+with the caller/profile. A mobile inventory may provide `actuator_device_id`
+when its Parity id differs from the ADB serial or simulator UDID.

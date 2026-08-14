@@ -1,14 +1,17 @@
 import unittest
+import tempfile
 from contextlib import redirect_stdout
 from io import StringIO
+from pathlib import Path
 from types import SimpleNamespace
 
 from parity.core import (
-    ParityError, audit_status, build_matrix, load_data, route_job,
+    ParityError, RouteDecision, audit_status, build_matrix, load_data, route_job,
     validate_job_request, validate_profile, validate_receipt,
 )
 from parity.lab import evidence_record, test_plan as make_test_plan
 from parity.cli import command_report
+from parity.transport import submit_local_actuator
 
 CURRENT_ARCH = "sha256:" + "a" * 64
 OLD_ARCH = "sha256:" + "b" * 64
@@ -189,7 +192,7 @@ class LabAndReceiptTests(unittest.TestCase):
             "receipt_id": "r-1",
             "job_id": "j-1",
             "device_id": "mac",
-            "executor": "artificer",
+            "executor": "actuator",
             "transport": "local",
             "status": "succeeded",
             "started_at": "2026-08-04T00:00:00Z",
@@ -200,6 +203,57 @@ class LabAndReceiptTests(unittest.TestCase):
     def test_bad_receipt_rejected(self):
         with self.assertRaises(ParityError):
             validate_receipt({"schema_version": 1})
+
+    def test_local_actuator_transport_returns_valid_receipt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            stub = Path(directory) / "actuator-stub"
+            stub.write_text(
+                "#!/bin/sh\n"
+                "cat >/dev/null\n"
+                "printf '%s\\n' '{\"status\":\"succeeded\",\"success\":true,\"evidence\":[{\"kind\":\"provider-exit\"}]}'\n",
+                encoding="utf-8",
+            )
+            stub.chmod(0o755)
+            job = {
+                "schema_version": 1,
+                "job_id": "mobile-1",
+                "capability_id": "mobile_debug_control",
+                "intent": {"action": "back", "arguments": {}},
+                "authorization": {"granted_scopes": ["device.debug", "device.control"]},
+                "target": {"platform": "android_termux"},
+            }
+            decision = RouteDecision("eligible", "phone-1", "local", "actuator")
+            receipt = submit_local_actuator(
+                job, decision, {"id": "phone-1", "platform": "android_termux"}, str(stub)
+            )
+            self.assertEqual(receipt["status"], "succeeded")
+            self.assertEqual(receipt["executor"], "actuator")
+            self.assertEqual(receipt["evidence"][0]["kind"], "provider-exit")
+
+    def test_uncertain_actuator_result_stays_uncertain(self):
+        with tempfile.TemporaryDirectory() as directory:
+            stub = Path(directory) / "actuator-stub"
+            stub.write_text(
+                "#!/bin/sh\n"
+                "cat >/dev/null\n"
+                "printf '%s\\n' '{\"status\":\"uncertain\",\"success\":false,\"input_state\":\"possibly-emitted\"}'\n",
+                encoding="utf-8",
+            )
+            stub.chmod(0o755)
+            job = {
+                "schema_version": 1,
+                "job_id": "mobile-uncertain",
+                "capability_id": "mobile_debug_control",
+                "intent": {"action": "click", "arguments": {"x": 1, "y": 2}},
+                "authorization": {"granted_scopes": ["device.debug", "device.control"]},
+                "target": {"platform": "android_termux"},
+            }
+            decision = RouteDecision("eligible", "phone-1", "local", "actuator")
+            receipt = submit_local_actuator(
+                job, decision, {"id": "phone-1", "platform": "android_termux"}, str(stub)
+            )
+            self.assertEqual(receipt["status"], "uncertain")
+            self.assertEqual(receipt["result"]["input_state"], "possibly-emitted")
 
     def test_report_attributes_pi_hardware_to_debian_test_environment(self):
         output = StringIO()

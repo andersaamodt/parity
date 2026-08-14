@@ -67,7 +67,7 @@
       "outcome": "Connect to and test a mobile device through authorized debugging tooling.",
       "wizardry_menu": "install menu -> mobile debugging",
       "installation": "optional_arcana",
-      "executor": "artificer",
+      "executor": "actuator",
       "host_platforms": ["macos", "debian", "nixos", "arch", "android_termux", "windows_wsl"],
       "control_target_platforms": ["android_termux", "ios"],
       "authorization_scopes": ["device.debug", "device.control"]

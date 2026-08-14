@@ -9,6 +9,7 @@ from typing import Any
 
 from .core import build_matrix, load_json, load_profile, route_job, validate_receipt
 from .lab import evidence_record, test_plan
+from .transport import submit_local_actuator
 
 
 SYMBOLS = {"green": "GREEN", "yellow": "YELLOW", "red": "RED"}
@@ -91,6 +92,21 @@ def command_route(args: argparse.Namespace) -> int:
     return 0 if decision.status in {"eligible", "manual_gate"} else 2
 
 
+def command_execute(args: argparse.Namespace) -> int:
+    profile = load_profile(getattr(args, "profile", None))
+    request = load_json(args.request)
+    devices_doc = load_json(args.devices)
+    devices = devices_doc.get("devices", devices_doc) if isinstance(devices_doc, dict) else devices_doc
+    decision = route_job(request, devices, profile["capabilities"], profile["platforms"])
+    if decision.status != "eligible":
+        _print_json(decision.as_dict())
+        return 2
+    device = next(item for item in devices if item.get("id") == decision.device_id)
+    receipt = submit_local_actuator(request, decision, device, args.actuator_command)
+    _print_json(receipt)
+    return 0 if receipt["status"] == "succeeded" else 2
+
+
 def command_plan(args: argparse.Namespace) -> int:
     profile = load_profile(getattr(args, "profile", None))
     plan = test_plan(
@@ -147,6 +163,12 @@ def build_parser() -> argparse.ArgumentParser:
     route.add_argument("--request", type=Path, required=True)
     route.add_argument("--devices", type=Path, required=True)
     route.set_defaults(func=command_route)
+
+    execute = subparsers.add_parser("execute", help="route and submit one local actuator job")
+    execute.add_argument("--request", type=Path, required=True)
+    execute.add_argument("--devices", type=Path, required=True)
+    execute.add_argument("--actuator-command", default="actuator", help="single actuator executable path or name")
+    execute.set_defaults(func=command_execute)
 
     plan = subparsers.add_parser("plan", help="emit the shared cross-platform test plan")
     plan.add_argument("--platform")

@@ -1,9 +1,10 @@
-"""Deterministic audit semantics and remote routing.
+"""Deterministic audit semantics and remote routing decisions.
 
-This module deliberately has no transport implementation and performs no OS input.
-Upstream sources provide structured intent, and Artificer owns automation. The
-parity layer only decides whether an authorized job can be routed and what
-evidence is sufficient for an audit.
+This module performs no OS input. Upstream sources provide structured intent,
+and the capability profile names the executor. Raw interface operations
+normally route to actuator; Artificer and application-specific executors remain
+valid for higher-level work. The small execution adapter lives in
+``parity.transport`` so routing and actuation stay separate.
 """
 
 from __future__ import annotations
@@ -308,9 +309,13 @@ def validate_receipt(receipt: dict[str, Any]) -> None:
         raise ParityError("receipt missing fields: " + ", ".join(missing))
     if receipt["schema_version"] != 1:
         raise ParityError("unsupported receipt schema_version")
-    if receipt["status"] not in {"succeeded", "failed", "rejected", "manual_gate"}:
+    if receipt["status"] not in {"succeeded", "failed", "uncertain", "rejected", "manual_gate"}:
         raise ParityError("invalid receipt status")
-    if receipt["executor"] not in {"artificer", "external"}:
+    executor = receipt["executor"]
+    if not isinstance(executor, str) or not executor or any(
+        character not in "abcdefghijklmnopqrstuvwxyz0123456789._-"
+        for character in executor
+    ):
         raise ParityError("invalid receipt executor")
     if receipt["transport"] not in TRANSPORT_ORDER:
         raise ParityError("invalid receipt transport")
