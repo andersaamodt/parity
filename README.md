@@ -1,110 +1,150 @@
-# parity
+# Parity
 
-Parity is Wizardry's evidence-first cross-platform audit, neutral remote routing
-layer, and shared test-laboratory interface. It does not recognize speech or
-perform faux-user input. Upstream sources submit structured intent, capability
-profiles name an executor, and parity describes capabilities, chooses eligible
-targets, and records receipts and evidence. Raw interface operations normally
-route to the standalone lowercase `actuator` project; Parity never absorbs its
-device-control implementation.
+Parity shows which project capabilities work on which platforms—and what
+evidence supports that answer.
 
-Other projects can supply a project-owned profile rather than copying Parity's
-evidence logic. Use `python3 -m parity --profile /path/to/profile.json report`
-(or `plan`, `route`, and `record`). Profiles define `project`, `capabilities`, and
-`platforms`; runtime evidence remains outside either repository.
+It has three jobs:
 
-Profiles are audit projections, not product authorities. A project with an
-existing product arche should generate its Parity profile from that arche. The
-optional `arche` field binds a profile to `sha256:<digest>`; `record` copies that
-digest into evidence, and `report` keeps missing or mismatched evidence yellow.
-Changing the governing arche therefore invalidates earlier green evidence
-without making Parity reinterpret the product contract.
+- report what has been proven to work;
+- choose an eligible device for an authorized job; and
+- record what happened so the result can be audited later.
 
-## What is implemented
+Parity was built for [Wizardry](https://github.com/andersaamodt/wizardry), but
+other projects can describe their own capabilities and platforms with a profile.
 
-- Machine-readable capability and platform manifests, including host/client roles
-- Strict traffic-light evidence semantics
-- Authorization-friendly job and execution-receipt schemas
-- Deterministic device, prerequisite, and transport routing
-- Android Wi-Fi debugging and iOS official-debugging manual gates
-- A cross-platform outcome test plan that keeps simulations yellow
-- Human-readable and JSON audit reports
-- A standard-library-only Python core with automated tests
+## How it fits together
 
-The bundled baseline is deliberately conservative. Wizardry's README is evidence
-that macOS is its working primary platform and that its other official paths are
-untested or under validation; it is not sufficient evidence that each individual
-user outcome passes. Thus no baseline capability is green until a run proves the
-outcome is discoverable in the menu, installed as needed, executable, and passing
-on the platform.
+A caller gives Parity a structured request. Parity checks the requested
+capability, authorization, available devices, and transport options. It then
+chooses an eligible target and records the result returned by the executor.
 
-Windows native is unavailable; WSL is represented separately. iOS is not a
-Wizardry host and appears only as a constrained mobile test/control target.
+Parity does not recognize speech or control a device itself. Raw mouse,
+keyboard, and mobile-device operations belong to the separate `actuator`
+project. Parity decides **whether and where** a job may run; the named executor
+does the work.
 
-## Use
+## Quick start
 
-Python 3.9 or newer is sufficient; there are no runtime dependencies.
+Parity requires Python 3.9 or newer and has no runtime dependencies.
 
 ```sh
-python3 -m parity report
-python3 -m parity report --json
-python3 -m parity plan --platform android_termux
-python3 -m parity record \
-  --capability mobile_debug_control --platform android_termux \
-  --kind manual_on_device --missing-prerequisite wifi_debugging_enabled
-python3 -m parity route \
-  --request tests/fixtures/android_request.json \
-  --devices tests/fixtures/devices.json
-python3 -m parity execute \
-  --request /path/to/actuator-request.json \
-  --devices /path/to/devices.json \
-  --actuator-command actuator
+git clone https://github.com/andersaamodt/parity.git
+cd parity
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install -e .
+
+parity report
+```
+
+The report begins with a platform summary and then lists the status of every
+capability on every supported platform.
+
+Run the test suite with:
+
+```sh
 python3 -m unittest discover -s tests -v
 ```
 
-When running directly from a checkout, set `PYTHONPATH=src`, or install the
-project into a virtual environment with `python3 -m pip install -e .`.
+## Everyday commands
 
-`record` prints a record to standard output so the lab can append it to an
-external evidence bundle. A manual gate remains yellow even if other checks are
-marked passed. Omitting any check also remains yellow.
+Show the evidence-backed capability report:
 
-## Evidence rules
+```sh
+parity report
+parity report --json
+```
 
-An audit result is:
+Create a test plan for a platform:
 
-- **green** only when menu discovery, installation/preinstallation, execution,
-  and the exact user outcome all pass with referenced real-platform evidence;
-- **yellow** when a prerequisite remains or evidence is missing, partial, or
-  simulated;
-- **red** when the outcome is unavailable on the platform.
+```sh
+parity plan --platform android_termux
+```
 
-For an arche-bound profile, otherwise passing evidence is still **yellow** when
-it has no arche digest or was collected against a different digest.
+Choose an authorized target from a device inventory:
 
-Runtime device inventories, receipts, and evidence should live outside this
-repository. The ignored `evidence/` and `receipts/` names are available for
-short-lived local work, but an external lab-artifact location is preferred.
+```sh
+parity route \
+  --request tests/fixtures/android_request.json \
+  --devices tests/fixtures/devices.json
+```
 
-## Data and boundaries
+Record one lab observation:
 
-- `src/parity/data/capabilities.json` — user outcomes and authorization scopes
-- `src/parity/data/platforms.json` — official host/client distinctions and gates
-- `src/parity/data/baseline_evidence.json` — source assertions, not device proof
-- `src/parity/data/live_device_audit_2026-08-04.json` — dated Android and
-  Debian-on-Raspberry-Pi preflight evidence, including partial and failed results
-- `src/parity/schemas/` — stable platform, test-environment, job, evidence, and receipt envelopes
-- `src/parity/transport.py` — protocol boundary for local/LAN/Tor/debug adapters
+```sh
+parity record \
+  --capability mobile_debug_control \
+  --platform android_termux \
+  --kind manual_on_device \
+  --missing-prerequisite wifi_debugging_enabled
+```
 
-Transport adapters preserve the job's named intent when translating it to the
-executor contract and return a receipt; they do not infer new intent. Executor ids are
-validated opaque names rather than a hard-coded product list. Routing is
-deterministic: authorization is checked first, candidates are sorted by device
-id, and transport preference is honored in request order.
+`record` prints JSON to standard output. The lab can append that record to an
+external evidence bundle; Parity does not silently store runtime results in the
+repository.
 
-The local actuator transport accepts only an already eligible route whose
-profile executor is `actuator`. Its job intent must be an actuator `action` and
-`arguments` object. It invokes one executable without a shell, returns a Parity
-receipt, preserves uncertain mutation outcomes, and leaves semantic authorization
-with the caller/profile. A mobile inventory may provide `actuator_device_id`
-when its Parity id differs from the ADB serial or simulator UDID.
+The `execute` command is for callers that already have an actuator request and
+device inventory:
+
+```sh
+parity execute \
+  --request /path/to/actuator-request.json \
+  --devices /path/to/devices.json \
+  --actuator-command actuator
+```
+
+## Reading a report
+
+Parity uses three deliberately strict states:
+
+- **Green:** the capability was discovered, installed when needed, executed,
+  and proven to produce the intended outcome on the real platform.
+- **Yellow:** evidence is missing, partial, simulated, stale, or blocked by a
+  prerequisite.
+- **Red:** the capability is unavailable on that platform.
+
+A simulation can help development, but it cannot make a result green. A manual
+gate also remains yellow until it has been completed and supported by evidence.
+
+The bundled baseline is intentionally conservative. Wizardry currently treats
+macOS as its primary working platform while other paths remain under validation.
+Windows is represented through WSL rather than native Windows, and iOS appears
+only as a constrained test and control target.
+
+## Using Parity with another project
+
+A project profile names the project, its user-facing capabilities, its
+platforms, and the executor for each capability:
+
+```sh
+parity --profile /path/to/profile.json report
+parity --profile /path/to/profile.json plan
+```
+
+Profiles describe what should be audited; they are not the source of truth for
+the product itself. A profile may include an `arche` digest that identifies the
+product definition it came from. If that definition changes, older evidence
+stays yellow until the capability is tested again.
+
+Runtime device inventories, execution receipts, and evidence should live
+outside this repository. The ignored `evidence/` and `receipts/` directories are
+available for short-lived local work.
+
+## For contributors
+
+The small Python core is under `src/parity/`:
+
+- `core.py` contains audit and routing decisions.
+- `lab.py` creates test plans and evidence records.
+- `transport.py` contains the executor boundary.
+- `data/` contains the bundled Wizardry profile and baseline evidence.
+- `schemas/` defines the JSON exchanged with other tools.
+
+Keep routing deterministic and evidence claims conservative. Authorization is
+checked before target selection, candidates are ordered by device id, and
+transport preference follows the request. Device control belongs in an
+executor, not in Parity's decision layer.
+
+## License
+
+Parity is available under the [Open Wizardry License 3.1](LICENSE).
