@@ -1,11 +1,16 @@
-__pycache__/
-*.py[cod]
-.pytest_cache/
-.coverage
-.venv/
-dist/
-build/
-*.egg-info/
-evidence/
-receipts/
+# Cross-platform OS clutter
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+Desktop.ini
 
+# Editor leftovers
+*~
+*.swp
+*.swo
+*.orig
+*.rej
+.idea/
+.vscode/
