@@ -1,7 +1,7 @@
 # Parity
 
-Parity is [Wizardry's](https://github.com/andersaamodt/wizardry) POSIX shell
-toolkit for cross-platform capability audits and authorized device routing.
+Parity is a [Wizardry](https://github.com/andersaamodt/wizardry) spellbook for
+cross-platform capability audits and authorized device routing.
 
 It answers three questions:
 
@@ -9,9 +9,16 @@ It answers three questions:
 - What checks remain before a capability can be considered working?
 - Which authorized device is eligible to perform a requested job?
 
-## Use
+## Install
 
-Parity is available through the Wizardry spellbook:
+Clone Parity, then link the repository into your personal spellbook:
+
+```sh
+git clone https://github.com/andersaamodt/parity.git ~/parity
+learn --link ~/parity
+```
+
+Open a new terminal, then use the spells directly:
 
 ```sh
 parity-report
@@ -38,10 +45,17 @@ Capabilities, platforms, and baseline evidence are tab-separated text files
 read with POSIX tools. Live device inventories and evidence stay outside the
 repository.
 
+The spell source is in the repository root. Bundled data is under `.parity/`,
+and matching behavioral tests are under `.tests/`.
+
 ## Development
 
-Parity spells use `#!/bin/sh`, POSIX tools, a `--help` contract, and matching
-behavioral tests under Wizardry's `.tests/` directory.
+Parity spells use `#!/bin/sh`, POSIX tools, and a `--help` contract. Run all
+behavioral tests with:
+
+```sh
+.tests/test-all
+```
 
 ## License
 

@@ -1,0 +1,9 @@
+#!/bin/sh
+# Run every Parity spell's behavioral test.
+
+set -eu
+
+test_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd -P)
+for test_file in "$test_dir"/test-parity*.sh; do
+  "$test_file"
+done

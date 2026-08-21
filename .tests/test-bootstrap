@@ -1,0 +1,89 @@
+#!/bin/sh
+# Minimal behavioral test harness for the Parity spellbook.
+
+set -eu
+
+ROOT_DIR=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd -P)
+TEST_TMP=${TMPDIR:-/tmp}/parity-tests-$$
+mkdir -p "$TEST_TMP"
+trap 'rm -rf "$TEST_TMP"' EXIT HUP INT TERM
+
+TEST_COUNT=0
+TEST_PASSED=0
+TEST_FAILED=0
+RUN_OUTPUT=''
+RUN_ERROR=''
+RUN_STATUS=0
+TEST_FAILURE_REASON=''
+
+run_spell() {
+  spell=$1
+  shift
+  output_file=$TEST_TMP/output
+  error_file=$TEST_TMP/error
+  set +e
+  "$ROOT_DIR/$spell" "$@" >"$output_file" 2>"$error_file"
+  RUN_STATUS=$?
+  set -e
+  RUN_OUTPUT=$(cat "$output_file")
+  RUN_ERROR=$(cat "$error_file")
+}
+
+assert_success() {
+  if [ "$RUN_STATUS" -eq 0 ]; then
+    return 0
+  fi
+  TEST_FAILURE_REASON="expected success; status=$RUN_STATUS; error=$RUN_ERROR"
+  return 1
+}
+
+assert_failure() {
+  if [ "$RUN_STATUS" -ne 0 ]; then
+    return 0
+  fi
+  TEST_FAILURE_REASON='expected failure'
+  return 1
+}
+
+assert_output_contains() {
+  case $RUN_OUTPUT in
+  *"$1"*) return 0 ;;
+  esac
+  TEST_FAILURE_REASON="stdout does not contain: $1"
+  return 1
+}
+
+assert_error_contains() {
+  case $RUN_ERROR in
+  *"$1"*) return 0 ;;
+  esac
+  TEST_FAILURE_REASON="stderr does not contain: $1"
+  return 1
+}
+
+make_tempdir() {
+  mktemp -d "$TEST_TMP/case.XXXXXX"
+}
+
+run_test_case() {
+  test_name=$1
+  test_command=$2
+  TEST_COUNT=$((TEST_COUNT + 1))
+  TEST_FAILURE_REASON=''
+  if "$test_command"; then
+    TEST_PASSED=$((TEST_PASSED + 1))
+    printf 'PASS #%s %s\n' "$TEST_COUNT" "$test_name"
+  else
+    TEST_FAILED=$((TEST_FAILED + 1))
+    printf 'FAIL #%s %s: %s\n' "$TEST_COUNT" "$test_name" "$TEST_FAILURE_REASON" >&2
+  fi
+}
+
+finish_tests() {
+  if [ "$TEST_FAILED" -eq 0 ]; then
+    printf '✓ %s/%s tests passed\n' "$TEST_PASSED" "$TEST_COUNT"
+    exit 0
+  fi
+  printf '✗ %s/%s tests failed\n' "$TEST_FAILED" "$TEST_COUNT" >&2
+  exit 1
+}
